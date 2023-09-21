@@ -1,30 +1,32 @@
 ---
 title: "Milestone#1"
-author: "Group 22"
+author: "Group 22: Jaemie Anne Abad, Vig Karthik, Kathy LeBert"
 date: "2023-09-21"
 output: pdf_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
 
-## R Markdown
+Project option selection
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+Scenario 3:  Environment and asthma in California
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+Share a link to your group’s git repository
 
-```{r cars}
-summary(cars)
-```
+https://github.com/vigkarthik/W251Project/tree/main
 
-## Including Plots
+Roles and responsibilities
+Team's preferred communication method:
 
-You can also embed plots, for example:
+For quick responses, we will use text messaging. For long detailed planning, we will use email. 
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
+Team's preferred meeting times and frequency:
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+Meetings: Thursdays before assignments due, and email check-in Sun/Mon to finalize
+
+Team's preferred method for tracking progress:
+
+Track progress through GitHub but also with text messaging to check in if one person is currently working on something to avoid merge conflicts due to more than one working on the same thing at the same time.
+
+Point person for contacting course facilitators with questions:
+
+By rotational basis. We have a table that tracks each person's responsibilities for each milestone for contacting facilitators, notetaker, support check ins, and assignment submission. Anything in between, we will check in with each other via text and clearly communicate who is going to ask certain questions in addition to the milestone assignments. 
