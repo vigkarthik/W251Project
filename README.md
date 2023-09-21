@@ -1,5 +1,5 @@
 # W251Project
-W252 Project
+W251 Project
 
 Collaborators:
 
