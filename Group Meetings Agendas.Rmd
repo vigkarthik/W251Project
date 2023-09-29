@@ -1,0 +1,86 @@
+---
+title: "Group Meeting Agendas"
+author: 'Group 22: Jaemie Anne Abad, Vig Karthik, Kathy LeBert'
+date: "2023-09-22"
+output: pdf_document
+---
+
+# Template: [Date] Meeting for [Milestone #\_] due [Date]
+
+**Facilitator & bCourses Submitter:** \_
+
+**Notetaker:** \_
+
+**Support (send check-in email on Sun/Mon):** \_
+
+**Agenda**
+
+-   Debrief Milestone #\_: good/bad/ideas
+
+-   Work on Milestone #\_
+
+-   Confirm next meeting time
+
+**Today's Tasks:**
+
+1.  
+
+# Thursday 09/28 Meeting for Milestone #1 due 10/02
+
+**Facilitator & bCourses Submitter:** Jaemie
+
+**Notetaker:** Vig
+
+**Support (send check-in email on Sun/Mon):** Kathy
+
+**Agenda**
+
+-   Debrief Milestone #1: good/bad/ideas
+
+-   Work on Milestone #2
+
+-   Confirm next meeting time
+
+**Today's Tasks:**
+
+1.  
+
+# Thursday 09/21 Meeting for Milestone #1 due 09/25
+
+Facilitator & bCourses Submitter: Kathy
+
+Notetaker: Jaemie
+
+Support (send check-in email on Sun/Mon): Vig
+
+**Agenda**
+
+-   Introductions
+
+-   Work on Milestone #1
+
+**Today's Tasks:**
+
+1.  Team member introductions
+
+2.  Completed Milestone #1 Document
+
+3.  Vig created repository, added Jaemie and Kathy as collaborators
+
+4.  Jaemie & Kathy accepted invites to Repo
+
+5.  Jaemie & Kathy cloned Repo in Datahub
+
+6.  Test: ReadMe file edits
+
+7.  Jaemie created groupchat via text
+
+8.  Kathy sent out Zoom invite for next meeting Thurs 09/28 7:15 PM
+
+9.  Vig/Kathy worked on Milestone #1
+
+10. Jaemie updated Milestone #1
+
+11. Vig to add instructional team as collaborators
+
+12. Kathy to submit Milestone #1 to bCourses

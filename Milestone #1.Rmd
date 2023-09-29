@@ -1,0 +1,57 @@
+---
+title: "Milestone#1"
+author: "Group 22: Jaemie Anne Abad, Vig Karthik, Kathy LeBert"
+date: "2023-09-21"
+output: pdf_document
+---
+
+## Project option selection
+
+Scenario 3: Environment and asthma in California
+
+## Share a link to your group's git repository
+
+<https://github.com/vigkarthik/W251Project/tree/main>
+
+## Roles and responsibilities
+
+**Team Roles and Responsibilities**
+
+| Meeting Time                   | Facilitator | Notetaker | Send Email**Check-in** | Assignment Submission | Assignment              |
+|--------------------------------|-------------|-----------|------------------------|-----------------------|-------------------------|
+| Thurs 09/21 10 AM to 11 AM     | Kathy       | Jaemie    | Vig                    | Kathy                 | Milestone #1 due 09/25  |
+| Thurs 09/28 7:15 PM to 8:15 PM | Jaemie      | Vig       | Kathy                  | Jaemie                | Milestone #2 due 10/02  |
+| Thurs                          | Vig         | Kathy     | Jaemie                 | Vig                   | Milestone #3 due 11/06  |
+| Thurs                          |             |           |                        |                       | Milestone #4 due 11/20  |
+| Thurs                          |             |           |                        |                       | Milestone #5 due 11/27  |
+| Thurs                          |             |           |                        |                       | Milestone#6 due TBD     |
+
+**Team's preferred communication method:**
+
+For quick responses, we will use text messaging. For long detailed planning, we will use email.
+
+**Team's preferred meeting times and frequency:**
+
+Meetings: Thursdays before assignments due, and email check-in Sunday/Monday to finalize.
+
+After discussing our schedules and future non-academic commitments, we have selected days/times that work for our meetings, but will communicate if meeting times need to be adjusted.
+
+Structure: We will check in with each other at the beginning of meetings as well as follow a co-created agenda.
+
+**Team's preferred method for tracking progress:**
+
+Track progress through GitHub but also with text messaging to check in if one person is currently working on something to avoid merge conflicts due to more than one working on the same thing at the same time.
+
+We have a table that tracks each person's responsibilities for each milestone for contacting facilitators, notetaker, support check ins, and assignment submission.
+
+**Point person for contacting course facilitators with questions:**
+
+By rotational basis. Our team will meet as described, and first discuss questions, concerns, and issues among ourselves. We will check in with each other via text and clearly communicate who is going to reach out to the course facilitors to ask certain questions in addition to the milestone assignments.
+
+Our goal is to reach out to the course facilitator in between Milestones #3 and #4 to see if we are on track and request feedback for what we have worked on.
+
+**Conflict Management:**
+
+If a conflict arises, we will plan to resolve the issue as soon as possible with priority to synchronous communication. If the group is unable to resolve the conflict, we will seek advise from the instructional team.
+
+As part of our ongoing meeting agendas, we will debrief the previous meeting/assignment and discuss what went well, what we can improve on, and other ideas to explore.
