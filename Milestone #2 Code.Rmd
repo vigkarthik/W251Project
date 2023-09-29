@@ -1,0 +1,10 @@
+```{r}
+data_dictionary <- read_xlsx("calenviroscreen_datadictionary.xlsx")
+
+measures <- read.csv("calenviroscreen_measures_2021.csv")
+
+scores <- read.csv("calenviroscreen_scores_demog_2021.csv")
+
+asthma <- read.csv("chhs_asthma_ed.csv")
+```
+
