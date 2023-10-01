@@ -1,4 +1,4 @@
-Census Tract,CES 4.0 Score,CES 4.0 Percentile,CES 4.0 Percentile Range,Total Population,Children < 10 years (%),Pop 10-64 years (%),Elderly > 64 years (%),Hispanic (%),White (%),African American (%),Native American (%),Asian American (%),Other/Multiple (%),County
+Census Tract,CES 4.0 Score,CES 4.0 Percentile,CES 4.0 Percentile Range,Total Population,Children below 10 years prct,Pop 10 to 64 years prct,Elderly above 64 years prct,Hispanic prct,White prct,African American prct,Native American prct,Asian American prct,Other/Multiple prct,County
 6001400100,4.8479879853920496,2.7987897125567298,1-5% (lowest scores),3120,7.82,66.12,26.06,3.78,74.26,3.43,0,12.53,5.99,Alameda County
 6001400200,4.8821074626317102,2.8744326777609701,1-5% (lowest scores),2007,10.46,66.32,23.22,8.67,73.49,2.59,0.2,8.52,6.53,Alameda County
 6001400300,11.2042444639356,15.935451336359099,15-20%,5051,11.42,73.04,15.54,6.95,67.99,9.09,0,12.14,3.84,Alameda County

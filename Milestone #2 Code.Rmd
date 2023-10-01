@@ -1,10 +1,65 @@
-```{r}
+```{r clean up columns - Vig}
+library(data.table)
+
+#loading the data.table library to read in the csv
+#also loaded read_xl to read the xlsx file
+
 data_dictionary <- read_xlsx("calenviroscreen_datadictionary.xlsx")
+#using read_xlsx to read in the data dictionary
 
-measures <- read.csv("calenviroscreen_measures_2021.csv")
+measures_raw <- fread("calenviroscreen_measures_2021.csv", encoding = "UTF-8")
+#using fread() from the data.table package to read the measures csv.
+#using fread() so special characters read in properly
 
-scores <- read.csv("calenviroscreen_scores_demog_2021.csv")
+scores_raw <- fread("calenviroscreen_scores_demog_2021.csv", encoding = "UTF-8")
+#using fread() to read the demographics csv
 
-asthma <- read.csv("chhs_asthma_ed.csv")
+asthma_raw <- fread("chhs_asthma_ed.csv")
+#using fread() to read the asthma csv.
+
+#now that we've read the files, I've went into the csv files and removed 
+#periods by some abbreviations to avoid '._' string chunks in columns
+#this is mostly for aesthetic and typing ease during the project
+
+#the below functions take the raw csvs and convert all columns to lowercase
+#they also remove spaces in the column names to convert columns to snakecase
+
+measures <- rename_with(
+  measures_raw,             # data frame
+  ~ tolower(           # function call (using tolower())
+    gsub(" ",          # embedded gsub() checking for empty spaces pattern " "
+         "_",          # replace pattern with underscore "_"         
+         .x,           
+         fixed = TRUE) 
+    ))
+
+scores <- rename_with(
+  scores_raw,             # data frame
+  ~ tolower(           # function call (using tolower())
+    gsub(" ",          # embedded gsub() checking for empty spaces pattern " "
+         "_",          # replace pattern with underscore "_"         
+         .x,           
+         fixed = TRUE) 
+    ))
+
+
+asthma <- rename_with(
+  asthma_raw,             # data frame
+  ~ tolower(           # function call (using tolower())
+    gsub(" ",          # embedded gsub() checking for empty spaces pattern " "
+         "_",         # replace pattern with underscore "_"          
+         .x,           
+         fixed = TRUE) 
+    ))
+
+str(measures)
+str(scores)
+str(asthma)
+
+#I checked the dataframe structure to see if we needed to change column types.
+#The column types seem to be accurately assigned. Based on the column
+#descriptors, there seems to be no mismatch of data types. Characters are
+#characters, integers are integers, and decimals are numbers.
+
 ```
 
