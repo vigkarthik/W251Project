@@ -81,3 +81,20 @@ str(asthma)
 
 ```
 
+
+
+#Describe cleaning that each data source may need
+NOTE: There is no requirement for any data cleaning in this milestone. Please just list out the anticipated data cleaning needed. 
+Examples:
+*Data elements that need to be converted to a different type*
+-May have to convert Census Tract numbers to characters
+-Convert CES percentile range to characters
+
+
+*Data elements that need cleaning or re-categorization*
+-Convert demographic percentages to raw numbers
+-Rounding decimal points to just 2 after for most of the CES scores and percentile
+
+
+*Data elements that may be used for future joins (i.e. state, county)*
+-County CES scores with county ED visit rates due to asthma
