@@ -5,9 +5,13 @@ date: "2023-10-01"
 output: html
 ---
 
-#Description of dataset *What is the data source? (1-2 sentences on where the data is coming from, dates included, etc.)* The major data are from California Office of Environmental Health Hazard Assessment's CalEnviroScreen 4.0 (CES) (published 2021, data averaged from 2017 to 2019). The asthma emergency department visit rates is from California Health and Human Services Open Data Portal (created 2019, updated 2023).
+#Description of dataset *What is the data source? (1-2 sentences on where the data is coming from, dates included, etc.)*
 
-*How does the dataset relate to the group problem statement and question?* The group's problem statement and question looks at the correlation between each county's ED visits due to asthma and certain CalEnviroScreen scores. To answer this question, the datasets needed are the rate ED visits and each of the CES measures - which are the ones provided.
+The major data are from California Office of Environmental Health Hazard Assessment's CalEnviroScreen 4.0 (CES) (published 2021, data averaged from 2017 to 2019). The asthma emergency department visit rates is from California Health and Human Services Open Data Portal (created 2019, updated 2023).
+
+*How does the dataset relate to the group problem statement and question?*
+
+The group's problem statement and question looks at the correlation between each county's ED visits due to asthma and certain CalEnviroScreen scores. To answer this question, the datasets needed are the rate ED visits and each of the CES measures - which are the ones provided.
 
 ```{r clean up columns - Vig}
 library(data.table)
@@ -90,7 +94,7 @@ str(asthma)
 
 *Or any other descriptives that will be useful to the analysis*
 
-```{r data_type_analysis - Jaemie}
+```{r data_element_analysis - Jaemie}
 
 # 1 - CES County
 # lists which of CA's 58 counties is specified
@@ -178,3 +182,13 @@ Describe cleaning that each data source may need NOTE: There is no requirement f
 *Data elements that may be used for future joins (i.e. state, county)*
 
 -County CES scores with county ED visit rates due to asthma
+
+```{r, include=FALSE}
+
+save.image (file = "MS2.RData")
+load("MS2.RData")
+library(data.table)
+library(readxl)
+library(tidyverse)
+
+```
