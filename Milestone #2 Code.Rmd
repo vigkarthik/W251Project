@@ -5,19 +5,14 @@ date: "2023-10-01"
 output: html
 ---
 
+#Description of dataset *What is the data source? (1-2 sentences on where the data is coming from, dates included, etc.)* The major data are from California Office of Environmental Health Hazard Assessment's CalEnviroScreen 4.0 (CES) (published 2021, data averaged from 2017 to 2019). The asthma emergency department visit rates is from California Health and Human Services Open Data Portal (created 2019, updated 2023).
 
-#Description of dataset
-*What is the data source? (1-2 sentences on where the data is coming from, dates included, etc.)*
-The major data are from California Office of Environmental Health Hazard Assessment's CalEnviroScreen 4.0. 
-The asthma emergency department visit rates is from California Health and Human Services Open Data Portal.
-
-
-*How does the dataset relate to the group problem statement and question?*
-The groups problem statement and question looks at the correlation between each county's ED visits due to asthma and certain Cal Environ Screen scores. To answer this question, the datasets needed are the rate ED visits and each CES measures - which are the ones provided. 
-
+*How does the dataset relate to the group problem statement and question?* The group's problem statement and question looks at the correlation between each county's ED visits due to asthma and certain CalEnviroScreen scores. To answer this question, the datasets needed are the rate ED visits and each of the CES measures - which are the ones provided.
 
 ```{r clean up columns - Vig}
 library(data.table)
+library(readxl)
+library(tidyverse)
 
 #loading the data.table library to read in the csv
 #also loaded read_xl to read the xlsx file
@@ -81,20 +76,105 @@ str(asthma)
 
 ```
 
+*Identify data types for 5+ data elements/columns/variables*
 
+*Identify 5+ data elements required for your specified scenario. If \<5 elements are required to complete the analysis, please choose additional variables of interest in the data set to explore in this milestone.*
 
-#Describe cleaning that each data source may need
-NOTE: There is no requirement for any data cleaning in this milestone. Please just list out the anticipated data cleaning needed. 
-Examples:
-*Data elements that need to be converted to a different type*
+*Utilize functions or resources in RStudio to determine the types of each data element (i.e. character, numeric, factor)*
+
+*Provide a basic description of the 5+ data elements*
+
+*Numeric: mean, median, range*
+
+*Character: unique values/categories*
+
+*Or any other descriptives that will be useful to the analysis*
+
+```{r data_type_analysis - Jaemie}
+
+# 1 - CES County
+# lists which of CA's 58 counties is specified
+class(measures$california_county)
+
+# 2 - CES Asthma
+class(measures$asthma)
+summary(measures$asthma)
+class(measures$asthma_pctl)
+summary(measures$asthma_pctl)
+
+# 3 - CES Score
+class(scores$ces_4.0_score)
+summary(scores$ces_4.0_score)
+class(scores$ces_4.0_percentile)
+summary(scores$ces_4.0_percentile)
+
+# 4 - CES Age
+class(scores$children_below_10_years_prct)
+summary(scores$children_below_10_years_prct)
+class(scores$pop_10_to_64_years_prct)
+summary(scores$pop_10_to_64_years_prct)
+class(scores$elderly_above_64_years_prct)
+summary(scores$elderly_above_64_years_prct)
+
+# 5 - CES Race
+class(scores$white_prct)
+summary(scores$white_prct)
+class(scores$hispanic_prct)
+summary(scores$hispanic_prct)
+class(scores$african_american_prct)
+summary(scores$african_american_prct)
+class(scores$native_american_prct)
+summary(scores$native_american_prct)
+class(scores$asian_american_prct)
+summary(scores$asian_american_prct)
+class(scores$`other/multiple_prct`)
+summary(scores$`other/multiple_prct`)
+
+# 6 - CHHS Asthma
+class(asthma$year)
+summary(asthma$year)
+class(asthma$`age-adjusted_ed_visit_rate`)
+summary(asthma$`age-adjusted_ed_visit_rate`)
+# also include county
+
+```
+
+1.  measures [chr] California County "california_county" or [int] Census Tract "census_tract"
+
+    Specifies the census tract or the California county that the census tract falls within, used to link the data to a geographic area. (Census tract is interpreted as an integer, but should be changed to characters as these numbers are used for identification, not values.)
+
+2.  measures [num] Asthma ED Visit Rate "asthma" or Asthma ED Visits Percentile "asthma_pctl"
+
+    Our public health outcome of interest, asthma emergency department visit rates, which can be influenced by environmental burden, pollution, a history of racial segregation and socioeconomic factors contributing to racial health disparities, and more. More specifically, this variable is the spatially modeled age-adjusted rate of ED visits for asthma per 10,000 (averaged over 2015 to 2017).
+
+3.  scores [num] CES 4.0 Score "ces_4.0_score" or CES 4.0 Percentile "ces_4.0_percentile"
+
+    The CalEnviroScreen Score, which uses environmental, health, and socioeconomic information to produce scores by census tract that identify California communities that are most affected by many sources of pollution and are often especially vulnerable to pollution's effects. The score is calculated as follows: the "pollution burden" (average of exposures and environmental effects) multiplied by "population characteristics" (average of sensitive populations and socioeconomic factors). Each item is usually averaged from 2017 to 2019.
+
+4.  scores [num] Age Percents (multiple)
+
+    The percentage of residents in each census tract that fall within the specified age groups (below 10, 10 to 64, 65 and above) according to estimates from the 2019 American Community Survey (ACS).
+
+5.  scores [num] Race Percents (multiple)
+
+    The percentage of residents in each census tract that identify as a specified racial/ethnic group (White, Hispanic, African American, Native American, Asian American, Other/Multiple), per 2019 ACS estimates.
+
+6.  asthma [int] Year "year", [num] Asthma ED Visit Rate "age-adjusted_ed_visit_rate", [chr] County "county"
+
+    Values from the other dataset to be analyzed, CHHS, regarding asthma ED visit rates by county by year (2015 to 2020).
+
+Describe cleaning that each data source may need NOTE: There is no requirement for any data cleaning in this milestone. Please just list out the anticipated data cleaning needed. Examples: *Data elements that need to be converted to a different type*
+
 -May have to convert Census Tract numbers to characters
+
 -Convert CES percentile range to characters
 
-
 *Data elements that need cleaning or re-categorization*
+
 -Convert demographic percentages to raw numbers
+
 -Rounding decimal points to just 2 after for most of the CES scores and percentile
 
-
 *Data elements that may be used for future joins (i.e. state, county)*
+
 -County CES scores with county ED visit rates due to asthma
