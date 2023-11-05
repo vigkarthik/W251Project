@@ -1,0 +1,415 @@
+---
+title: "Milestone #3"
+author: "Group 22: Jaemie Anne Abad, Vig Karthik, Kathy LeBert"
+date: "2023-11-06"
+output: html_document
+---
+
+## Code Chunks from Milestone #2
+
+```{r clean up columns - Vig}
+
+# update.packages()
+
+library(data.table)
+library(readxl)
+library(tidyverse)
+
+#loading the data.table library to read in the csv
+#also loaded read_xl to read the xlsx file
+
+data_dictionary <- read_xlsx("calenviroscreen_datadictionary.xlsx")
+#using read_xlsx to read in the data dictionary
+
+measures_raw <- fread("calenviroscreen_measures_2021.csv", encoding = "UTF-8")
+#using fread() from the data.table package to read the measures csv.
+#using fread() so special characters read in properly
+
+scores_raw <- fread("calenviroscreen_scores_demog_2021.csv", encoding = "UTF-8")
+#using fread() to read the demographics csv
+
+asthma_raw <- fread("chhs_asthma_ed.csv")
+#using fread() to read the asthma csv.
+
+#now that we've read the files, I've went into the csv files and removed 
+#periods by some abbreviations to avoid '._' string chunks in columns
+#this is mostly for aesthetic and typing ease during the project
+
+#the below functions take the raw csvs and convert all columns to lowercase
+#they also remove spaces in the column names to convert columns to snakecase
+
+measures <- rename_with(
+  measures_raw,             # data frame
+  ~ tolower(           # function call (using tolower())
+    gsub(" ",          # embedded gsub() checking for empty spaces pattern " "
+         "_",          # replace pattern with underscore "_"         
+         .x,           
+         fixed = TRUE) 
+    ))
+
+scores <- rename_with(
+  scores_raw,             # data frame
+  ~ tolower(           # function call (using tolower())
+    gsub(" ",          # embedded gsub() checking for empty spaces pattern " "
+         "_",          # replace pattern with underscore "_"         
+         .x,           
+         fixed = TRUE) 
+    ))
+
+
+asthma <- rename_with(
+  asthma_raw,             # data frame
+  ~ tolower(           # function call (using tolower())
+    gsub(" ",          # embedded gsub() checking for empty spaces pattern " "
+         "_",         # replace pattern with underscore "_"          
+         .x,           
+         fixed = TRUE) 
+    ))
+
+str(measures)
+str(scores)
+str(asthma)
+
+#I checked the dataframe structure to see if we needed to change column types.
+#The column types seem to be accurately assigned. Based on the column
+#descriptors, there seems to be no mismatch of data types. Characters are
+#characters, integers are integers, and decimals are numbers.
+
+```
+
+```{r data_element_analysis - Jaemie}
+
+# 1 - CES County
+# lists which of CA's 58 counties is specified
+class(measures$california_county)
+
+# 2 - CES Asthma
+class(measures$asthma)
+summary(measures$asthma)
+class(measures$asthma_pctl)
+summary(measures$asthma_pctl)
+
+# 3 - CES Score
+class(scores$ces_4.0_score)
+summary(scores$ces_4.0_score)
+class(scores$ces_4.0_percentile)
+summary(scores$ces_4.0_percentile)
+
+# 4 - CES Age
+class(scores$children_below_10_years_prct)
+summary(scores$children_below_10_years_prct)
+class(scores$pop_10_to_64_years_prct)
+summary(scores$pop_10_to_64_years_prct)
+class(scores$elderly_above_64_years_prct)
+summary(scores$elderly_above_64_years_prct)
+
+# 5 - CES Race
+class(scores$white_prct)
+summary(scores$white_prct)
+class(scores$hispanic_prct)
+summary(scores$hispanic_prct)
+class(scores$african_american_prct)
+summary(scores$african_american_prct)
+class(scores$native_american_prct)
+summary(scores$native_american_prct)
+class(scores$asian_american_prct)
+summary(scores$asian_american_prct)
+class(scores$`other/multiple_prct`)
+summary(scores$`other/multiple_prct`)
+
+# 6 - CHHS Asthma
+class(asthma$year)
+summary(asthma$year)
+class(asthma$`age-adjusted_ed_visit_rate`)
+summary(asthma$`age-adjusted_ed_visit_rate`)
+# also include county
+
+```
+
+## Team Tasks
+
+1.  Data subsetting, cleaning, and pivoting (Jaemie) - Saturday
+
+    1.  Create new document
+
+    2.  Data cleaning as below (Milestone #2)
+
+        1.  DONE: May have to convert Census Tract numbers to characters
+
+        2.  NOT NEEDED: Convert CES percentile range to characters
+
+        3.  DONE: Data elements that need cleaning or re-categorization
+
+        4.  DONE: -Convert demographic percentages to raw numbers and round to whole numbers
+
+        5.  DONE: -Rounding decimal points to just 2 after for most of the CES scores and percentile
+
+        6.  DONE: Find missing values and figure out what to do with them (left as-is for now)
+
+        7.  NOT NEEDED: Make column names across datasheets consistent to facilitate joining
+
+    3.  Subset by year (CHHS asthma: year 2020)
+
+        1.  DONE
+
+    4.  Pivot if needed (one row per county)
+
+        1.  PIVOT NOT NEEDED, each census tract has its own row already
+
+    5.  When done, send text to team members
+
+2.  Adding new variables and data dictionary (Kathy) - Sunday 
+
+    1.  New variables
+
+        1.  Aggregate census tracts into counties using averages?
+
+        2.  Re-calculate new CES percentile scores based on quartiles
+
+            1.  1 to 25% etc.
+
+        3.  Child vs. Adult variables
+
+        4.  Non-white variable vs. White variables
+
+        5.  Also double-check data analysis below to anticipate other new variables
+
+            1.  Jaemie's note: in "scores" df, renamed "other/multiple_prct" to "other_multiple_prct"
+
+    2.  Create a data dictionary table (merge the CES and CHHS data dictionaries then add our new variables)
+
+3.  Data analysis (Vig)
+
+    1.  Analysis needs to have different styles of analysis/calculations (they can't all be averages)
+
+    2.  3A: County CES
+
+        1.  Raw scores
+
+    3.  3B: Age & Asthma Rates by County
+
+        1.  Compare rates of "Child vs. Adult" (0-17 vs. 18+)
+
+    4.  3C: Race & Asthma by County
+
+        1.  Compare rates of White vs. Non-white
+
+    5.  3D: Housing Burden & Asthma by County
+
+        1.  Compare values (using % housing burden, not percentile)
+
+    6.  3E: Pollution Burden by County
+
+        1.  Compare values of Pollution Burden Score (score, not the other ones)
+
+    7.  Summary Statistics
+
+4.  HTML output and submission of document
+
+## Data Subsetting, Cleaning, and Pivoting
+
+```{r subset, clean, pivot - Jaemie}
+
+# subset asthma data set by year 2020
+asthma_2020 <- subset(asthma, year == 2020)
+
+# convert census tract in two datasets from integer to character
+class(measures$census_tract)
+measures$census_tract <- as.character(measures$census_tract)
+class(measures$census_tract)
+class(scores$census_tract)
+scores$census_tract <- as.character(scores$census_tract)
+class(scores$census_tract)
+
+# identify missing values in the three datasets
+asthma_missing <- colSums(is.na(asthma))
+print(asthma_missing)
+measures_missing <- colSums(is.na(measures))
+print(measures_missing)
+scores_missing <- colSums(is.na(scores))
+print(scores_missing)
+
+# what is the proportion of missing values in each dataset?
+# https://thomasadventure.blog/posts/r-count-na/
+mean(is.na(asthma))
+mean(is.na(measures))
+mean(is.na(scores))
+
+# rename any more columns as needed
+scores <- scores %>%
+  rename(other_multiple_prct = `other/multiple_prct`)
+
+# change race and age percentages to population numbers, round to whole numbers
+scores$children_below_10_years_num <- round(scores$total_population * scores$children_below_10_years_prct)
+scores$pop_10_to_64_years_num <- round(scores$total_population * scores$pop_10_to_64_years_prct)
+scores$elderly_above_64_years_num <- round(scores$total_population * scores$elderly_above_64_years_prct)
+scores$hispanic_num <- round(scores$total_population * scores$hispanic_prct)
+scores$white_num <- round(scores$total_population * scores$white_prct)
+scores$african_american_num <- round(scores$total_population * scores$african_american_prct)
+scores$native_american_num <- round(scores$total_population * scores$native_american_prct)
+scores$asian_american_num <- round(scores$total_population * scores$asian_american_prct)
+scores$other_multiple_num <- round(scores$total_population * scores$other_multiple_prct)
+
+# round to 2 decimal points for CES scores and percentiles
+scores$ces_4.0_score_round <- round(scores$ces_4.0_score, digits = 2)
+scores$ces_4.0_percentile_round <- round(scores$ces_4.0_percentile, digits = 2)
+
+# pivoting is not needed for these datasets at this time
+
+```
+
+```{r new variables - Kathy}
+
+```
+
+```{r data dictionary - Kathy}
+
+```
+
+```{r data analysis - Vig}
+
+```
+
+```{r other}
+
+```
+
+### Clean each dataset and include descriptive statistics for relevant data elements
+
+Please turn in an html document created from an Rmd or Qmd with the following components:
+
+-   Subset rows or columns, as needed
+
+    -   Subset Asthma Visit Rates by year (2020)
+
+-   Create new variables needed for analysis (minimum 2)
+
+    -   New variables should be created based on existing columns; for example
+
+        -   Calculating a rate
+
+        -   Combining character strings
+
+        -   **Aggregation (CES and Housing Burden/Pollution/Traffic)**
+
+-   Clean variables needed for analysis (minimum 2)
+
+    -   Examples
+
+        -   Recode invalid values
+
+        -   Handle missing data **(CES Score, Housing, Traffic, Asthma)**
+
+        -   Recode categories
+
+        -   (Milestone #2) Describe cleaning that each data source may need NOTE: There is no requirement for any data cleaning in this milestone. Please just list out the anticipated data cleaning needed. Examples: Data elements that need to be converted to a different type
+
+            -   -May have to convert Census Tract numbers to characters
+
+            -   -Convert CES percentile range to characters
+
+            -   Data elements that need cleaning or re-categorization
+
+            -   -Convert demographic percentages to raw numbers
+
+            -   -Rounding decimal points to just 2 after for most of the CES scores and percentile
+
+            -   Data elements that may be used for future joins (i.e. state, county)
+
+            -   -County CES scores with county ED visit rates due to asthma
+
+            -   Find missing values and figure out what to do with them
+
+            -   Make column names across datasheets consistent to facilitate joining
+
+    -   
+
+-   Data re-structured as needed (aggregated/summarized and/or pivoted)
+
+    -   One row per county
+
+    -   Subset for demographic strata
+
+        -   restrict the Asthma ED visit rates to year 2020
+
+-   Data dictionary based on clean dataset (minimum 4 data elements), including:
+
+    -   Variable name: asthma ED visits, county, CES score, demographic (pop_char, age, race, total pop, poverty), Environment (housing_burden + pollution burden)
+
+    -   Data type
+
+    -   Description
+
+    -   (Include any new variables we create)†
+
+-   One or more tables with descriptive statistics for 4 data elements
+
+    -   Task #3A: County CES
+
+        -   County level CES percentile range, weighted average (quantile fxn)
+
+        -   ![](https://lh7-us.googleusercontent.com/TQG_oUF5WosFF3kx5IcYRj00oDhRe7QaDdwd1Cokz9X8RyC0PdCuUyeb-OKlgtx5wU-3AbaT2njx8nE7EAFZK2ouELerYM6Bdm5iwkrPSmp8RoY4phTvw7ML8MR4KqXNi_v9DtUDWrpCmoFnuGBwv4Y)
+
+    -   Task #3B: Age & Asthma Visits
+
+        -   Age-adjusted asthma ED visits by county
+
+    <!-- -->
+
+    -     "child vs. adult"
+
+        -   0 to 17 vs.  18+
+
+        -   Race asthma ED visit rates by county
+
+        -   White vs. Non-white
+
+        <!-- -->
+
+        -   Task #3C: Race & Asthma
+
+        -   Task #3D Housing Burden by County
+
+            -   Pollution burden by county
+
+            -   Housing burden by county
+
+        -   Task #3E Pollution burden by County
+
+-   Html output that is professionally prepared for presentation
+
+    -   Only the necessary information is outputted (you should suppress, for example, entire data frame outputs)
+
+    -   Use of headers and sub headers to create an organized document
+
+-   (Can discuss limitations: missing values, dataset year mismatch asthma 2020 & CES 2021)
+
+**NOTE: Please [see scenario descriptions](https://bcourses.berkeley.edu/courses/1525339/pages/team-project#S4) for specific expectations for Milestone #3.**
+
+#### **Data Cleaning: Milestone 3**
+
+**In order to prepare each dataset for analysis (milestone #3), you will be expected to:**
+
+-   **Cal Enviro Screen datasets**
+
+    -   **Recode common variable(s) to be combined with other datasets**
+
+    -   **Identify environmental measure(s) of interest and summarize into a county-level value**
+
+    -   **Summarize CalEnviroScreen score into a county level variable**
+
+    -   **NOTE: the methods for each summary variable (environmental measure and  CalEnviroScreen score) should be different (i.e. if you calculate the mean for one, please use another method for the other). If you look at more than one environmental measure you can re-use summarization methods for this.**
+
+        -   **weight averages?**
+
+-   **Asthma ED dataset**
+
+    -   **Recode common variable(s) to be combined with other datasets**
+
+    -   **Recode values that are reading in incorrectly**
+
+    -   **Subset to most recent year and county level data**
+
+    -   **Select demographic strata of interest**
+
+    -   **Pivot table to only include one row per county**
