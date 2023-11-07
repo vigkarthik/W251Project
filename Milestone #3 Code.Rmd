@@ -5,9 +5,9 @@ date: "2023-11-06"
 output: html_document
 ---
 
-## Code Chunks from Milestone #2
+## Milestone #2 Summary
 
-Milestone #2 Summary Our project continues with the two Cal Enviro Screen (CES) datasets from 2021 ("scores" and "measures") and the California Health and Human Services (CHHS) asthma emergency department (ED) visit rates dataset from 2020.
+Our project continues with the two Cal Enviro Screen (CES) datasets from 2021 ("scores" and "measures") and the California Health and Human Services (CHHS) asthma emergency department (ED) visit rates dataset from 2020.
 
 As a summary of what was accomplished in the previous milestone, we imported the three datasets into R, renamed the column names for ease of analysis, and identified some variables of interest to use in our analysis. We ran summary statistics in our initial exploration of the data. The datasets contain rows of observations by census tract, which are further categorized into counties. While this level of granularity in location is appreciated, our team wishes to match asthma ED visit rates with the CES scores. The asthma ED visit rates are only at the county level, leading to the need to aggregate census tracts into the county level to match up the datasets for further analysis.
 
