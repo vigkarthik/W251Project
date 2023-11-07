@@ -378,6 +378,20 @@ colnames(new_data_dictionary)[2] = "DESCRIPTION"
 
 ```{r data analysis - Vig}
 
+#3A/D/E: county vs. raw score, include percentile. obtain the housing burden% from CES_environment_asthma alongside the pollution score. these are two columns as well as county. this is table four. This is one table 
+#report out summary statistics for: CES, housing burden %, pollution score
+
+
+#3B: Age and Asthma Rates. column 1 is county, column 2 is age group, column three is rate by age-group. This is another table.
+#to calculate rate, we need population size number for the strata in each county. backcalculate this number using the methodology of the original data set. once you have this estimated population, recalculate your rate.
+
+#report out summary ed visits for: 0-17, 18+
+
+#3C: obtain the race populations from CES_Environment_asthma, and divide the ED visits in asthma_2020 white and non-white by this population. note that we assume that the racial populations in each county don't change much year-over-year. This is a third table. column 1 is county, column 2 is racial group, column 3 is rate
+
+#report out summary ed visits for: white, non-white
+
+
 ```
 
 ```{r other}
