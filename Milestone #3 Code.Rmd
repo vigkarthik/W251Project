@@ -423,9 +423,11 @@ colnames(new_data_dictionary)[2] = "DESCRIPTION"
   
 ```
 
-```{r data analysis - Vig}
+```{r CES Scores/Measures Analysis}
 
 #3A: County and: CES score, Pollution Burden, Housing Burden %
+
+#subsetting the combined dataset to analyze statistics for specific environmental measures by county 
 
 asthma_house_poll <- data.frame("County" = CES_environment_Asthma$County, 
                                 "CES 4.0 Score" = 
@@ -441,14 +443,18 @@ colnames(asthma_house_poll) = c("County", "CES 4.0 Score",
                                 "Pollution Burden Score", 
                                 "Housing Burden %", "Population")
 
+
+#calculating the weighted averages for CES/pollution/housing
+
 asthma_house_poll$weights <- 
   asthma_house_poll$`Population`/sum(asthma_house_poll$`Population`)
 
-#calculating the weighted averages for CES/pollution/housing
 weighted_CES <-
   sum(asthma_house_poll$weights*asthma_house_poll$`CES 4.0 Score`)
+
 weighted_pollution_burden <-
   sum(asthma_house_poll$weights*asthma_house_poll$`Pollution Burden Score`)
+
 weighted_housing_burden <-
   sum(asthma_house_poll$weights*asthma_house_poll$`Housing Burden %`)
 
@@ -458,10 +464,11 @@ colnames(weighted_environment) = c("Weighted CES 4.0 Score",
                                    "Weighted Pollution Burden", 
                                    "Weighted Housing Burden %")
 
+```
 
-#3B: Age and Asthma Rates.
+```{r Age and Asthma Rates}
 
-#joining the child and adult datasets
+#joining the child and adult asthma ED admission datasets
 
 asthma_2020_age_report <- asthma_2020_age_adult %>%
    left_join(asthma_2020_age_child, by='County')
@@ -470,12 +477,15 @@ asthma_2020_age_report <- asthma_2020_age_adult %>%
 adult_total_ed_visits <- sum(asthma_2020_age_report$adult_asthma_ed_visits)
 child_total_ed_visits <- sum(asthma_2020_age_report$child_asthma_ed_visits)
 
+#defining a column that represents the proportion of adult/child ED admissions contributed by county 
+
 asthma_2020_age_report$adult_visit_state_prop <- 
   asthma_2020_age_report$adult_asthma_ed_visits/adult_total_ed_visits 
 
 asthma_2020_age_report$child_visit_state_prop <- 
   asthma_2020_age_report$child_asthma_ed_visits/child_total_ed_visits 
 
+#using above proportion to calculate weighted state ED admission rates for adult and child
 adult_weighted_state_ed_rate <- 
   sum(asthma_2020_age_report$adult_visit_state_prop*
         asthma_2020_age_report$`age-adjusted_ed_visit_rate.x`)
@@ -492,7 +502,12 @@ colnames(asthma_2020_age_final) = c("County",
                                     "Adult Age-Adjusted ED Visit Rate", 
                                     "Child Age-Adjusted ED Visit Rate")
 
-#joining the cleaned up CES data with the cleaned up age-asthma data
+
+```
+
+
+```{r Statistics and Tables}
+#joining the cleaned up CES data with the cleaned up age-asthma data in preparation for summary statistics and tables
 
 data_final <- asthma_2020_age_final %>%
    left_join(asthma_house_poll, by='County')
@@ -514,7 +529,12 @@ colnames(weighted_final) <-
     "Weighted State Pollution Burden", 
     "Weighted State Housing Burden %")
 
-#need some work on race
+```
+
+
+```{r Race}
+
+#need some work on race for final submission
 
 # #3C: obtain the race populations from CES_Environment_asthma, and divide the ED visits in asthma_2020 white and non-white by this population. note that we assume that the racial populations in each county don't change much year-over-year. This is a third table. column 1 is county, column 2 is racial group, column 3 is rate
 # 
@@ -540,8 +560,8 @@ colnames(weighted_final) <-
 # 
 # asthma_race_final <- select(asthma_race_report, County, white_asthma_ed_rate, non_white_asthma_ed_rate)
 
-
 ```
+
 
 ```{r other}
 
