@@ -213,6 +213,8 @@ summary(asthma$`age-adjusted_ed_visit_rate`)
 # subset asthma data set by year 2020
 asthma_2020 <- subset(asthma, year == 2020)
 
+```
+```{r Jaemie 2}
 # convert census tract in two datasets from integer to character
 class(measures$census_tract)
 measures$census_tract <- as.character(measures$census_tract)
@@ -239,6 +241,9 @@ mean(is.na(scores))
 scores <- scores %>%
   rename(other_multiple_prct = `other/multiple_prct`)
 
+```
+
+```{r Jaemie 3}
 # change race and age percentages to population numbers, round to whole numbers
 scores$children_below_10_years_num <- round(scores$total_population * scores$children_below_10_years_prct)
 scores$pop_10_to_64_years_num <- round(scores$total_population * scores$pop_10_to_64_years_prct)
@@ -256,7 +261,9 @@ scores$ces_4.0_percentile_round <- round(scores$ces_4.0_percentile, digits = 2)
 
 # pivoting is not needed for these datasets at this time
 
+
 ```
+
 
 ```{r new variables - Kathy}
 
