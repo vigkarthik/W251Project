@@ -516,18 +516,32 @@ data_final <- data_final[,-c(7,8)]
 #summary statistics for the CES/age-asthma data
 print(summary(data_final))
 
+adult_quartile <- quantile(data_final$`Adult Age-Adjusted ED Visit Rate`, probs = c(0.25,0.5,0.75,1))
+child_quartile <- quantile(data_final$`Child Age-Adjusted ED Visit Rate`, probs = c(0.25,0.5,0.75,1))
+ces_quartile <- quantile(data_final$`CES 4.0 Score`, probs = c(0.25,0.5,0.75,1))
+pollution_quartile <- quantile(data_final$`Pollution Burden Score`, probs = c(0.25,0.5,0.75,1))
+housing_quartile <- quantile(data_final$`Housing Burden %`, probs = c(0.25,0.5,0.75,1))
+
+quartiles <- data.frame(adult_quartile,child_quartile,ces_quartile,pollution_quartile,housing_quartile)
+colnames(quartiles) = c("Quartiles of CA County Adult ED Admission Rate", "Quartiles of CA County Child ED Admission Rate", "Quartiles of CA County CES 4.0 Scores", "Quartiles of CA County Pollution Burden Scores", "Quartiles of CA County Housing Burden %")
+
 #weighted average table
 weighted_final <- data.frame(adult_weighted_state_ed_rate, 
                              child_weighted_state_ed_rate, 
                              weighted_CES, weighted_pollution_burden, 
                              weighted_housing_burden)
 
-colnames(weighted_final) <- 
-  c("Adult Weighted State ED Rate", 
-    "Child Weighted State ED Rate", 
-    "Weighted State CES", 
-    "Weighted State Pollution Burden", 
+colnames(weighted_final) <-
+  c("Adult Weighted State ED Admission Rate",
+    "Child Weighted State ED Admission Rate",
+    "Weighted State CES",
+    "Weighted State Pollution Burden",
     "Weighted State Housing Burden %")
+
+
+print(t(quartiles))
+print(t(weighted_final))
+
 
 ```
 
