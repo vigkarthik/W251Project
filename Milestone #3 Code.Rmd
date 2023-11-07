@@ -538,6 +538,7 @@ colnames(weighted_final) <-
     "Weighted State Pollution Burden",
     "Weighted State Housing Burden %")
 
+rownames(weighted_final) <- c("Weighted Value")
 
 print(t(quartiles))
 print(t(weighted_final))
