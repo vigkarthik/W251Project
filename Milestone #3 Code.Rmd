@@ -7,12 +7,9 @@ output: html_document
 
 ## Code Chunks from Milestone #2
 
-Milestone #2 Summary
-Our project continues with the two Cal Enviro Screen (CES) datasets from 2021 ("scores" and "measures") and the California Health and Human Services (CHHS) asthma emergency department (ED) visit rates dataset from 2020.
+Milestone #2 Summary Our project continues with the two Cal Enviro Screen (CES) datasets from 2021 ("scores" and "measures") and the California Health and Human Services (CHHS) asthma emergency department (ED) visit rates dataset from 2020.
 
-As a summary of what was accomplished in the previous milestone, we imported the three datasets into R, renamed the column names for ease of analysis, and identified some variables of interest to use in our analysis. We ran summary statistics in our initial exploration of the data.
-The datasets contain rows of observations by census tract, which are further categorized into counties. While this level of granularity in location is appreciated, our team wishes to match asthma ED visit rates with the CES scores. The asthma ED visit rates are only at the county level, leading to the need to aggregate census tracts into the county level to match up the datasets for further analysis.
-
+As a summary of what was accomplished in the previous milestone, we imported the three datasets into R, renamed the column names for ease of analysis, and identified some variables of interest to use in our analysis. We ran summary statistics in our initial exploration of the data. The datasets contain rows of observations by census tract, which are further categorized into counties. While this level of granularity in location is appreciated, our team wishes to match asthma ED visit rates with the CES scores. The asthma ED visit rates are only at the county level, leading to the need to aggregate census tracts into the county level to match up the datasets for further analysis.
 
 ```{r clean up columns - Vig}
 
@@ -135,8 +132,6 @@ str(asthma)
 
 ## Data Subsetting, Cleaning, and Pivoting
 
-Data Subsetting, Cleaning, and Pivoting
-
 To start with, we first subsetted the asthma ED visit rates dataset, called "asthma", to the year 2020. The dataset contains other years, but we have chosen to focus on the year 2020 as it is the nearest year to the CES datasets, which contain data from 2021.
 
 Next, we converted the census tracts in the CES datasets from the integer class to the character class, as they are number-based location IDs. We then identified the missing values in the three datasets and calculated the proportion of the missing values for each. For example, the "asthma" dataset contains 4.5% missing values within any of its columns, while "measures" contains 0.7%, and "scores" contains 0.4%. These numbers seem to be low, but our team will conduct further research and discussions to figure out how to handle these missing values.
@@ -145,13 +140,13 @@ The "scores" dataset only contained race and age data in the form of percentages
 
 We decided that pivoting the data is not needed at this time, as each row already corresponds to a unique census tract.
 
-
 ```{r subset, clean, pivot}
 
 # subset asthma data set by year 2020
 asthma_2020 <- subset(asthma, year == 2020)
 
 ```
+
 ```{r Jaemie 2}
 # convert census tract in two datasets from integer to character
 class(measures$census_tract)
@@ -202,13 +197,13 @@ scores$ces_4.0_percentile_round <- round(scores$ces_4.0_percentile, digits = 2)
 
 ```
 
-Creating Variables for Analysis
+## Creating Variables for Analysis 
+
 In order to convert census tract data into county-level observations, our team decided to equate counties into means of the census tracts within.
 
-As we wished to analyze any racial health disparities within asthma visit rates and environmental exposures, we looked at the available racial data and decided to form two new variables: non_white_pop, referring to the number of people in each county that are White, and non_white_pop, which is the number of people in each county that are People of Color (non-White). We also wanted to identify any age-related differences, leading to the creation of pop_under_10, which are children below the age of 10, and pop_over_10, which are individuals above the age of 10. These age-related groups were chosen as they are based on the groupings in the CES datasets. 
+As we wished to analyze any racial health disparities within asthma visit rates and environmental exposures, we looked at the available racial data and decided to form two new variables: non_white_pop, referring to the number of people in each county that are White, and non_white_pop, which is the number of people in each county that are People of Color (non-White). We also wanted to identify any age-related differences, leading to the creation of pop_under_10, which are children below the age of 10, and pop_over_10, which are individuals above the age of 10. These age-related groups were chosen as they are based on the groupings in the CES datasets.
 
 We hope that the analysis of racial disparities or age-related disparities can provide good evidence for any environmental health interventions to be formed in the near future.
-
 
 ```{r New Variables and Cleaning Part 1}
 #combining CES scores into a county level measure
@@ -240,7 +235,6 @@ scores_raw_county <- scores_raw %>%
 
 We re-calculated the quartiles for the CES datasets, now based on county data instead of census tract data. We selected traditional quartiles in 25% increments. These quartiles will allow us to rank the county data and see where the environmental health burden is the highest and lowest, again providing good evidence for later interventions to be created.
 
-
 ```{r Cleaning Part 2}
  
 #calculating quartiles for county CES scores
@@ -259,10 +253,9 @@ scores_raw_county$County <- toupper(scores_raw_county$County)
 
 ```
 
-We recoded invalid values in the datasets and then summarized the means of county measures, again to transform the data into meaningful county-level observations. This also aided in the joining of multiple datasets based on the lowest common level of detail available (county). 
+We recoded invalid values in the datasets and then summarized the means of county measures, again to transform the data into meaningful county-level observations. This also aided in the joining of multiple datasets based on the lowest common level of detail available (county).
 
-We filtered, stratified, and created datasets based on our exposures of interest: age (child vs. adult), race (White vs. Non-White), and also summarized means of two CES measures of interest (Pollution and Housing Burden). 
-
+We filtered, stratified, and created datasets based on our exposures of interest: age (child vs. adult), race (White vs. Non-White), and also summarized means of two CES measures of interest (Pollution and Housing Burden).
 
 ```{r Cleaning Part 3}
 #recoding invalid values in the measures file
@@ -279,7 +272,6 @@ measures_raw_county$County <- toupper(measures_raw_county$County)
 measures_raw_county <- measures_raw_county %>% mutate(County=paste(County,c("COUNTY"), sep=" "))
 
 ```
-
 
 ```{r Cleaning Part 4}
 #recoding invalid values for asthma dataset
@@ -359,7 +351,8 @@ CES_environment_Asthma <- scores_raw_county %>%
 
 ```
 
-Data Dictionary
+## Data Dictionary 
+
 To foster collaboration and allow other colleagues to review our work, we created a new data dictionary with terms and definitions of variables used in our analysis.
 
 ```{r data dictionary - Kathy}
@@ -377,9 +370,9 @@ colnames(new_data_dictionary)[2] = "DESCRIPTION"
   
 ```
 
-Data Analysis
-In this section, we looked at county-level CES scores, Pollution Burden Score, and Housing Burden Percentage. The CES score estimates the overall environmental and socioeconomic/population-related burden on a community, with the maximum score being 100; higher values mean a higher burden on the community. Pollution Burden Score is a numeric score that estimates the effects of environmental exposures and environmental effects on a community, with the score's value ranging from 0.1 to 10, inclusive. Housing Burden Percentage refers to the percentage of households that are both low income (making less than 80% of their county's median family income) and severely burdened by rent (paying greater than 50% of their income toward housing costs). Weighted averages were calculated and placed into a table named weighted_environment.
+## Data Analysis 
 
+In this section, we looked at county-level CES scores, Pollution Burden Score, and Housing Burden Percentage. The CES score estimates the overall environmental and socioeconomic/population-related burden on a community, with the maximum score being 100; higher values mean a higher burden on the community. Pollution Burden Score is a numeric score that estimates the effects of environmental exposures and environmental effects on a community, with the score's value ranging from 0.1 to 10, inclusive. Housing Burden Percentage refers to the percentage of households that are both low income (making less than 80% of their county's median family income) and severely burdened by rent (paying greater than 50% of their income toward housing costs). Weighted averages were calculated and placed into a table named weighted_environment.
 
 ```{r CES Scores/Measures Analysis}
 
@@ -423,7 +416,8 @@ colnames(weighted_environment) = c("Weighted CES 4.0 Score",
                                    "Weighted Housing Burden %")
 
 ```
-We then looked at age and asthma rates, comparing the rates for adults and children, and then using the proportions to calculate the weighted state ED admission rates for adults and children. These calculations were then placed in a dataset, asthma_2020_age_final. 
+
+We then looked at age and asthma rates, comparing the rates for adults and children, and then using the proportions to calculate the weighted state ED admission rates for adults and children. These calculations were then placed in a dataset, asthma_2020_age_final.
 
 ```{r Age and Asthma Rates}
 
@@ -463,8 +457,8 @@ colnames(asthma_2020_age_final) = c("County",
 
 
 ```
-Please see below for the final tables of our analyses.
 
+Please see below for the final tables of our analyses.
 
 ```{r Statistics and Tables}
 #joining the cleaned up CES data with the cleaned up age-asthma data in preparation for summary statistics and tables
@@ -505,8 +499,8 @@ print(t(weighted_final))
 
 
 ```
-We attempted to analyze the asthma ED visit rates by race but ran into issues due to the year mismatch between the datasets. We found that there were certain values where the non-white asthma visit rates were larger than the non-white population of the county. While this may be due to the fact that there can be more ED visit rates than people, we wanted to look more into this phenomenon to determine its accuracy and decide how it can be handled.
 
+We attempted to analyze the asthma ED visit rates by race but ran into issues due to the year mismatch between the datasets. We found that there were certain values where the non-white asthma visit rates were larger than the non-white population of the county. While this may be due to the fact that there can be more ED visit rates than people, we wanted to look more into this phenomenon to determine its accuracy and decide how it can be handled.
 
 ```{r Race}
 
@@ -538,12 +532,12 @@ We attempted to analyze the asthma ED visit rates by race but ran into issues du
 
 ```
 
-Limitations
-One limitation of our project is that the CES datasets included data from 2021, while the CHHS dataset included data from 2020. (CES does not have data for 2020, and CHHS does not have data for 2021.) This year mismatch may make our race-based asthma ED visit rate calculations a bit off due to the growth in population. We can possibly reduce the negative impacts by using formulas to transform CHHS' data from 2020 into 2021 population estimates. More work is needed to see if this is necessary or viable.
-Another limitation is that we used averages for summing the census tract data into county-level data. This method is the easiest as it treats all census tracts as equal in terms of their contribution to county-level data, but does not provide a heavier weight for more populous census tracts. Therefore, census tracts with higher populations may be underestimated, and census tracts with lower populations may be overestimated.
-A third limitation is that the "asthma" dataset's age groupings do not match 1:1 with the CES datasets. The "asthma" dataset has age strata such as 0-17, 18+, 0-4, 5-17, 18-64, 65+ while the CES datasets have <10, 10-64, and 65+. We can match the elderly strata across the datasets, but may need another method for looking at child/adolescent strata.
+## Limitations 
 
-Conclusion
+One limitation of our project is that the CES datasets included data from 2021, while the CHHS dataset included data from 2020. (CES does not have data for 2020, and CHHS does not have data for 2021.) This year mismatch may make our race-based asthma ED visit rate calculations a bit off due to the growth in population. We can possibly reduce the negative impacts by using formulas to transform CHHS' data from 2020 into 2021 population estimates. More work is needed to see if this is necessary or viable. Another limitation is that we used averages for summing the census tract data into county-level data. This method is the easiest as it treats all census tracts as equal in terms of their contribution to county-level data, but does not provide a heavier weight for more populous census tracts. Therefore, census tracts with higher populations may be underestimated, and census tracts with lower populations may be overestimated. A third limitation is that the "asthma" dataset's age groupings do not match 1:1 with the CES datasets. The "asthma" dataset has age strata such as 0-17, 18+, 0-4, 5-17, 18-64, 65+ while the CES datasets have \<10, 10-64, and 65+. We can match the elderly strata across the datasets, but may need another method for looking at child/adolescent strata.
+
+## Conclusion 
+
 Our team welcomes any feedback on how we can improve our analysis of the Cal Enviro Screen data and CHHS' asthma visit rates. Thank you for your support.
 
-``
+\`\`
