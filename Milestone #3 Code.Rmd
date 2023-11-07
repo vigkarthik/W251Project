@@ -378,8 +378,14 @@ colnames(new_data_dictionary)[2] = "DESCRIPTION"
 
 ```{r data analysis - Vig}
 
+asthma_house_poll <- data.frame("County" = CES_environment_Asthma$County, "CES 4.0 Score" = CES_environment_Asthma$`CES 4.0 Score`, "Pollution Burden Score" = CES_environment_Asthma$`Pollution Burden Score`, "Housing Burden %" = CES_environment_Asthma$`Housing Burden`)
+
+colnames(asthma_house_poll) = c("County", "CES 4.0 Score", "Pollution Burden Score", "Housing Burden %")
+
+summary(asthma_house_poll)
+
 #3A/D/E: county vs. raw score, include percentile. obtain the housing burden% from CES_environment_asthma alongside the pollution score. these are two columns as well as county. this is table four. This is one table 
-#report out summary statistics for: CES, housing burden %, pollution score
+#report out summary statistics for: CES, housing burden %, pollution score. mean doesn't make sense so do ranges.
 
 
 #3B: Age and Asthma Rates. column 1 is county, column 2 is age group, column three is rate by age-group. This is another table.
