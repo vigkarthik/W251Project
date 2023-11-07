@@ -266,34 +266,56 @@ scores$ces_4.0_percentile_round <- round(scores$ces_4.0_percentile, digits = 2)
 
 
 ```{r new variables - Kathy}
+#combining CES scores into a county level measure
 
 scores_raw_county <- scores_raw %>%
   replace(is.na(.),0) %>%
   select(-c(`CES 4.0 Percentile Range`,`CES 4.0 Percentile`, `Census Tract`)) %>%
   group_by(County) %>% 
   summarize_all(mean) %>%
+#lumping together non-white percentages in population
   mutate(non_white_prct =`Hispanic prct`+`African American prct`+`Native American prct`+`Asian American prct`+`Other/Multiple prct`) %>%
+#calculating non-white population
   mutate(non_white_pop = `non_white_prct`/100 * `Total Population`) %>%
+#calculating white population
   mutate(white_pop = `White prct`/100 * `Total Population`) %>%
   rename(white_prct =`White prct`) %>%
+#removing individual race categories for non-white individuals
   select(-c(`Hispanic prct`,`African American prct`,`Native American prct`,`Asian American prct`,`Other/Multiple prct`)) %>%
+#calculating population of children below 10 years
   mutate(pop_under_10 = `Children below 10 years prct`/100*`Total Population`) %>%
   rename(pop_under_10_prct = `Children below 10 years prct`) %>%
+#calculating population of individuals above 10 years
   mutate(pop_over_10_prct = `Pop 10 to 64 years prct` + `Elderly above 64 years prct`) %>%
   mutate(pop_over_10 = `pop_over_10_prct`/100 * `Total Population`) %>%
+#removing sub-categories of individuals over 10 years
   select(-c(`Pop 10 to 64 years prct`,`Elderly above 64 years prct`))
+
+```
+
+
+```{r Kathy 2}
  
+#calculating quartiles for county CES scores
 CES_score_quartile <- quantile(scores_raw$`CES 4.0 Score`, na.rm=TRUE)
 
 scores_raw_county <- scores_raw_county %>%
   mutate(CES_score_quartile_range = cut(`CES 4.0 Score`, breaks = c(-Inf, 14.786523, 25.553718, 40.057395, Inf),
                                         labels = c("Lowest Quartile","Second Quartile","Third Quartile", "Fourth Quartile"))) %>%
+
+#subsetting and ordering the scores dataset
    select(c(`County`, `CES 4.0 Score`, `CES_score_quartile_range`, `Total Population`, `white_prct`, `white_pop`, `non_white_prct`, `non_white_pop`, `pop_under_10_prct`, 
            `pop_under_10`,`pop_over_10_prct`, `pop_over_10`))
 
 scores_raw_county <- scores_raw_county[order(scores_raw_county$County),]
 scores_raw_county$County <- toupper(scores_raw_county$County)
 
+```
+
+
+```{r Kathy 3}
+#recoding invalid values in the measures file
+#then summarizing means of county measures (Pollution/Housing Burden)
 measures_raw_county <- measures_raw %>%
   replace(is.na(.),0) %>%
   group_by(`California County`) %>%
@@ -305,11 +327,19 @@ colnames(measures_raw_county)[colnames(measures_raw_county)== "California County
 measures_raw_county$County <- toupper(measures_raw_county$County)
 measures_raw_county <- measures_raw_county %>% mutate(County=paste(County,c("COUNTY"), sep=" "))
 
+```
+
+```{r Kathy 4}
+#recoding invalid values for asthma dataset
+#grouping values by county
 asthma_2020 <- asthma %>%
   replace(is.na(.),0) %>%
   group_by(county) %>%
   filter(year>=2020)
   #select(-c(`age-adjusted_ed_visit_rate`, `year`))
+
+#filtering asthma dataset to stratify by age
+#create two datasets - one for child, one for adult
 asthma_2020_age <- asthma_2020 %>% filter(strata =="Child vs. adult")
 
 asthma_2020_age_adult <- filter(asthma_2020_age, strata_name == "18+ years")
@@ -327,6 +357,12 @@ colnames(asthma_2020_age_child)[colnames(asthma_2020_age_child)== "county"] = "C
 asthma_2020_age_child <- asthma_2020_age_child %>% mutate(County=paste(County,c("COUNTY"), sep=" "))%>%
   select(c("County","number_of_ed_visits", "age-adjusted_ed_visit_rate")) %>%
   rename(child_asthma_ed_visits = "number_of_ed_visits")
+
+
+
+#filtering asthma dataset to stratify by race
+#create two datasets - one for white, one for non-white
+#summarizing number of ED visits for white and non-white individuals by county
 
 asthma_2020_race <- asthma_2020 %>%
   filter(strata == "Race/ethnicity")
@@ -356,6 +392,11 @@ asthma_2020_non_white <- asthma_2020_non_white %>% mutate(County=paste(County,c(
   rename(non_white_asthma_ed_visits = "non_white")
 
 
+```
+
+```{r Kathy 5}
+#joining the scores with measures and stratified asthma datasets
+
 CES_environment_Asthma <- scores_raw_county %>%
    left_join(measures_raw_county, by='County') %>%
    left_join(asthma_2020_age_adult, by="County") %>% 
@@ -364,8 +405,8 @@ CES_environment_Asthma <- scores_raw_county %>%
    left_join(asthma_2020_non_white, by="County")
 
 
-
 ```
+
 
 ```{r data dictionary - Kathy}
 
