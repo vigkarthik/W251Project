@@ -541,21 +541,87 @@ Quick introduction explaining we'll be doing visualizations based on variables o
 
 ### Tables
 
-Table #1 narrative and interpretation
+Table #1:
 
+Three county-level tables were generated using a combination of California asthma and CES data. The first table looks at age-adjusted asthma ED visit rates for all ages for each county, stratified by race. To simplify the discussion, tables focused on the nine Bay Area counties were generated. Notably, there are several zeroes in this table in the Native Hawaiian/Pacific Islander and American Indian/Alaskan Native columns. A possible explanation for this observation is that there may be little to no data on these populations in certain counties. Comparing across strata, we see that non-White, non-Asian/Pacific Islander racial groups have higher age-adjusted ED visit rates across all nine Bay Area counties. Further analysis could be performed to address this variation. One possible explanation could be geographic segregation where non-White and non-Asian/Pacific Islander groups live in areas that have more environmental hazards and pollution. We assessed pollution burden scores and housing burden % as proxies for environmental hazards at the county level. It may be valuable as a follow-up to assess the relationship between census tract racial composition to pollution burden and housing burden. This could help us investigate more clearly the relationship between race and environmental hazard exposure. If we assume causality between environmental hazard exposure (pollution burden and housing burden) to age-adjusted asthma ED visit rate, we could account for the variation seen across races in age-adjusted asthma ED visit rates.
+
+In this project, our group wanted to analyze environmental factors by county by way of pollution burden scores and housing burden % in the California 2021 CES data. Notably, Marin and Sonoma counties exceed its Bay Area peers in CES Score and pollution burden but have a higher percentage of their populations that is housing burdened. Napa County, by contrast, had the median CES score but also had the lowest percentage of population that is housing burdened. Solano County has the worst CES score in the Bay Area and is in the upper quartile of housing burden population. Alameda and Contra Costa Counties have similar scores across all three metrics.
+
+We also wanted to see if there were differences in age-adjusted asthma ED visit rates between adults and children across counties. Generally, adults appear to have slightly higher age-adjusted asthma ED visit rates but what is more interesting is that the county level effect seems to be stronger than age. Solano County, for example, has higher age-adjusted asthma ED visit rates for adults than for children but the magnitude of both rates are significantly higher than the rest of the Bay Area. Putting all three tables together, there appears to be significant variation in age-adjusted asthma ED visit rates across counties and racial categories. One possible explanation could be that county is a proxy for race. A future analysis should attempt to correlate census tract-level racial composition data to both pollution burden and age-adjusted asthma ED visit rates. 
 ```{r table_1_variables_of_interest - Vig, echo = TRUE}
 
 # Variables of Interest by County: Pollution Scores, Housing Burden, CES Scores, and Asthma rates (all ages, all races, by county). 
 # Can filter for Bay Area counties in the final table, as a sample, so that the table isn't too long when we print it
 # San Francisco Bay Area region includes Alameda, Contra Costa, Marin, Napa, San Francisco, San Mateo, Santa Clara, Solano, and Sonoma counties
+
+asthma_race_white <- filter(asthma_2020_race, strata_name == "White") %>%
+  pivot_wider(names_from = "strata_name", values_from = "age-adjusted_ed_visit_rate") %>%
+  select(county, White)
+
+asthma_race_black <- filter(asthma_2020_race, strata_name == "Black")%>%
+  pivot_wider(names_from = "strata_name", values_from = "age-adjusted_ed_visit_rate") %>%
+  select(county, Black)
+asthma_race_hispanic <- filter(asthma_2020_race, strata_name == "Hispanic") %>%
+  pivot_wider(names_from = "strata_name", values_from = "age-adjusted_ed_visit_rate") %>%
+  select(county, Hispanic)
+asthma_race_AAPI <- filter(asthma_2020_race, strata_name == "Asian/PI") %>%
+  pivot_wider(names_from = "strata_name", values_from = "age-adjusted_ed_visit_rate") %>%
+  select(county, "Asian/PI")
+asthma_race_AI <- filter(asthma_2020_race, strata_name == "AI/AN") %>%
+  pivot_wider(names_from = "strata_name", values_from = "age-adjusted_ed_visit_rate") %>%
+  select(county, "AI/AN")
+asthma_race_NHPI <- filter(asthma_2020_race, strata_name == "NHPI") %>%
+  pivot_wider(names_from = "strata_name", values_from = "age-adjusted_ed_visit_rate") %>%
+  select(county, NHPI)
+asthma_race_MR <- filter(asthma_2020_race, strata_name == "Multi-race") %>%
+  pivot_wider(names_from = "strata_name", values_from = "age-adjusted_ed_visit_rate") %>%
+  select(county, "Multi-race")
+
+reduced <- Reduce(function(...) merge(..., by='county', all.x=TRUE), 
+                  list(asthma_race_white,asthma_race_black,asthma_race_hispanic,
+                       asthma_race_AAPI,asthma_race_AI,
+                       asthma_race_NHPI, asthma_race_MR))
+
+data_final_tojoin <- data_final %>% mutate(County = str_remove_all(County, " COUNTY")) %>% 
+  rename(county = County)
+
+data_final_with_race <- inner_join(reduced, data_final_tojoin, by = "county")
+race_data_state <- filter(reduced, county == 'CALIFORNIA')
+
+data_report <- filter(data_final_with_race, county %in% c("ALAMEDA","CONTRA COSTA", "SAN FRANCISCO", "MARIN", "NAPA", "SONOMA", "SOLANO", "SAN MATEO", "SANTA CLARA")) %>% rename(County = county, "Asian/Pacific Islander" = "Asian/PI", "American Indian/Alaskan Native" = "AI/AN", "Native Hawaiian/Pacific Islander" = NHPI)
+
+
+
+race_report <- select(data_report, County, White, Black, Hispanic, "Asian/Pacific Islander", "American Indian/Alaskan Native", "Native Hawaiian/Pacific Islander", "Multi-race") %>% 
+  kable(booktabs=T, align='lccccccc', caption="California All-Ages Asthma Age-Adjusted ED Visit Rate by Race and County, 2020",format.args=list(big.mark=","))
+
+age_report <- select(data_report, County, "Adult Age-Adjusted ED Visit Rate", "Child Age-Adjusted ED Visit Rate") %>% 
+  kable(booktabs=T, align='lcc', caption="California Adult (18+) vs. Child (0-17) Age-Adjusted ED Visit Rate by County, 2020",format.args=list(big.mark=","))
+
+CES_report <- select(data_report, County, "CES 4.0 Score", "Pollution Burden Score", "Housing Burden %") %>% 
+  kable(booktabs=T, align='lccc', caption="California CES 4.0 Scores, Pollution Burden Scores, Housing Burden % of Population by County, 2021",format.args=list(big.mark=","))
+
+
+race_report
+age_report
+CES_report
+
 ```
 
 Table #2 narrative and interpretation
+
+In this table, we wanted to see how the nine Bay Area counties compare to the state weighted average CES Score. We see that all counties, except for Solano County, have lower CES Scores than the state as a whole. Looking at the raw data, we see significantly higher CES scores outside of the Bay Area. As noted previously, Marin and Sonoma Counties have very good CES scores and are significantly below the state weighted CES average score.
 
 ```{r table_2_ces_prct_diff - Vig, echo = TRUE}
 
 # County CES: percentage difference between state-weighted and county for CES scores. Final table is the nine Bay area counties
 # San Francisco Bay Area region includes Alameda, Contra Costa, Marin, Napa, San Francisco, San Mateo, Santa Clara, Solano, and Sonoma counties
+
+ces_diff <- data.frame(County = data_report$County, ces_4 = data_report$`CES 4.0 Score`)
+ces_diff$prct_vs_state <-(100*ces_diff$ces_4/weighted_CES)
+colnames(ces_diff) <- c("County", "CES 4.0 Score", "% of weighted CA State CES Score")
+
+kable(ces_diff, align='lcc', caption="California All-Ages Asthma ED Visit Rate by County in 2020, % of weighted CA State CES Score",format.args=list(big.mark=","))
 ```
 
 ### Charts
