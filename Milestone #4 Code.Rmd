@@ -7,7 +7,7 @@ output: html_document
 
 ## Introduction
 
-Our project continues with the two Cal Enviro Screen (CES) datasets from 2021 ("scores" and "measures") and the California Health and Human Services (CHHS) asthma emergency department (ED) visit rates dataset from 2020.
+Our project continues with the two CalEnviroScreen (CES) datasets from 2021 ("scores" and "measures") and the California Health and Human Services (CHHS) asthma emergency department (ED) visit rates dataset from 2020.
 
 ## Milestone #2 Summary
 
@@ -85,6 +85,8 @@ asthma <- rename_with(
 
 ```{r data_element_analysis - Jaemie, include=FALSE}
 
+# # to run the data element analysis, please undo the comments in this chunk
+#
 # # 1 - CES County
 # # lists which of CA's 58 counties is specified
 # class(measures$california_county)
@@ -522,9 +524,9 @@ We observed three limitations during our data analysis: #1 there is a year misma
 
 ### Data Dictionary Update
 
-Narrative: We have updated our data dictionary code to be more comprehensive...
+We have updated our data dictionary code to be more comprehensive as well as to better reflect the joined dataset.
 
-```{r data_dictionary_updated - Kathy}
+```{r data_dictionary_updated - Kathy, echo = TRUE}
 
 library(kableExtra)
 
@@ -532,8 +534,8 @@ new_data_dictionary <- data.frame(
 variables <- c('2020 Asthma ED visits, 2019 Census, and environmental burden summary','County', 'CES 4.0 Score', 'CES_score_quartile_range', 'Total Population', 'white_prct', 'white_pop',
                'non_white_prcp', 'non_white_pop', 'pop_under_10_prct', 'pop_under_10', 'pop_over_10_prct','pop_over_10',
                'Pollution Burden', 'Pollution Burden Score','Pollution Burden Pctl', 'Housing Burden', 'Housing Burden Pctl',
-               'adult_asthma_ed_visits','child-asthma_ed_visits','age-adjusted_ed_visit_rate','white_asthma_ed_visits','non_white_asthma_ed_visits','AI/AN','NHPI'), 
-descriptions <- c('Data dictionary','California counties', 'CalEnviroScreen Score','CES 4.0 score grouped by quartile range of scores', '2019 ACS population estimates in census tracts', 'percetange of population that identify as white', 'estimated raw number of population that identify as white, calculated by multiplying percentage to total population', 'percentage of population that identify as non-white or multiple race, calculated by summming percentages of all non-white races and others/multile race from raw demographic results in census tract', 'estimated raw number of population that identify as non-white or multiple race, calculated by multiplying percentage to total population', 'percentage of population that is less than 10 years old','estimated raw number of population that is less than 10 years old, calculated by multiplying percentage to total populaiton', 'percentage of population that is more than 10 years old, calculated by summing population 10 to 64 years and over 64 years', 'estimated raw number of population that is more than 10 years old, calculated by multiplying percentage to total population','Average of percentiles from the Pollution Burden indicators (with a half weighting for the Environmental Effects indicators)','Pollution Burden variable scaled with a range of 0-10. (Used to calculate CES 4.0 Score)','Pollution burden percentile','Percent housing burdened low income households', 'Housing burden percentile','number of ED visits due to asthma for those over 18 years of age', 'age adjusted ED visit rates due to asthma', 'number of ED visits due to asthma for those under 18 years of age', 'number of ED visits due to asthma for those that identify as white', 'number of ED visits due to asthma for those that identify as non-white or multiple race','American Indian/Alaskan Native','Native Hawaiian/Pacific Islander'))
+               'adult_asthma_ed_visits','child-asthma_ed_visits','age-adjusted_ed_visit_rate','white_asthma_ed_visits','non_white_asthma_ed_visits','White', 'Black', 'Hispanic', 'Asian/PI', 'AI/AN','NHPI', 'Multi-race'), 
+descriptions <- c('Data dictionary','California counties', 'CalEnviroScreen Score','CES 4.0 score grouped by quartile range of scores', '2019 ACS population estimates in census tracts', 'percetange of population that identify as white', 'estimated raw number of population that identify as white, calculated by multiplying percentage to total population', 'percentage of population that identify as non-white or multiple race, calculated by summming percentages of all non-white races and others/multile race from raw demographic results in census tract', 'estimated raw number of population that identify as non-white or multiple race, calculated by multiplying percentage to total population', 'percentage of population that is less than 10 years old','estimated raw number of population that is less than 10 years old, calculated by multiplying percentage to total populaiton', 'percentage of population that is more than 10 years old, calculated by summing population 10 to 64 years and over 64 years', 'estimated raw number of population that is more than 10 years old, calculated by multiplying percentage to total population','Average of percentiles from the Pollution Burden indicators (with a half weighting for the Environmental Effects indicators)','Pollution Burden variable scaled with a range of 0-10. (Used to calculate CES 4.0 Score)','Pollution burden percentile','Percent housing burdened low income households', 'Housing burden percentile','number of Emergency Department (ED) visits due to asthma for those over 18 years of age', 'age adjusted ED visit rates due to asthma, rate per 10,000 residents', 'number of ED visits due to asthma for those under 18 years of age', 'number of ED visits due to asthma for those that identify as white', 'number of ED visits due to asthma for those that identify as non-white or multiple race','White (non-Hispanic) race','Black race','Hispanic race','Asian/Pacific Islander race','American Indian/Alaskan Native race','Native Hawaiian/Pacific Islander race', 'Multiple races'))
 
 colnames(new_data_dictionary)[1] = "VARIABLE"
 colnames(new_data_dictionary)[2] = "DESCRIPTION"
@@ -549,35 +551,11 @@ new_data_dictionary
 
 ### Final Dataset Preparation
 
-Narrative of join and pivot
+We have prepared the final dataset, titled data_final_with_race, by starting with the county CES measures and scores from data_final and then adding race-based asthma Emergency Department (ED) visit rate data by using the pivot wider function from the asthma dataset. Thus, data_final_with_race contains 58 observations, one for each of the 58 California counties, for the variables of interest selected from the "asthma" (CHHS), "measures" (CES), and "scores" (CES) datasets.
 
-```{r final_join_and_pivot - Jaemie}
+In addition, we created a dataframe titled race_data_state that shows the statewide asthma ED visit rates by race. The asthma ED visit rates among Black residents is the highest at 89.9 per 10,000 residents, which is almost 5 times as high as the asthma ED visit rate for White residents at 18.3 per 10,000 residents. This data demonstrates that Black Californians are at higher risk of being affected by severe asthma exacerbations requiring hospitalizations compared to other races. Therefore, public health interventions must be done to alleviate this disproprotionate burden. Our team will continue to explore the impacts of race on asthma and its implications for developing interventions.
 
-# Join all datasets together (Jaemie)
-# look at asthma_2020_race: take each county will have an age-adjusted ED visit rate, and have several columns, one for each race; may need to pivot 
-# Join it with data_final
-# Calculate any remaining data elements needed for analysis
-# Show code used to create joined dataset, but please do not print full data frame output (showing data structure with str() is okay)
-```
-
-## Visualizations
-
-Quick introduction explaining we'll be doing visualizations based on variables of interest and asthma and/or CES score and how it will help us communicate our data analysis findings to others
-
-### Tables
-
-Table #1:
-
-Three county-level tables were generated using a combination of California asthma and CES data. The first table looks at age-adjusted asthma ED visit rates for all ages for each county, stratified by race. To simplify the discussion, tables focused on the nine Bay Area counties were generated. Notably, there are several zeroes in this table in the Native Hawaiian/Pacific Islander and American Indian/Alaskan Native columns. A possible explanation for this observation is that there may be little to no data on these populations in certain counties. Comparing across strata, we see that non-White, non-Asian/Pacific Islander racial groups have higher age-adjusted ED visit rates across all nine Bay Area counties. Further analysis could be performed to address this variation. One possible explanation could be geographic segregation where non-White and non-Asian/Pacific Islander groups live in areas that have more environmental hazards and pollution. We assessed pollution burden scores and housing burden % as proxies for environmental hazards at the county level. It may be valuable as a follow-up to assess the relationship between census tract racial composition to pollution burden and housing burden. This could help us investigate more clearly the relationship between race and environmental hazard exposure. If we assume causality between environmental hazard exposure (pollution burden and housing burden) to age-adjusted asthma ED visit rate, we could account for the variation seen across races in age-adjusted asthma ED visit rates.
-
-In this project, our group wanted to analyze environmental factors by county by way of pollution burden scores and housing burden % in the California 2021 CES data. Notably, Marin and Sonoma counties exceed its Bay Area peers in CES Score and pollution burden but have a higher percentage of their populations that is housing burdened. Napa County, by contrast, had the median CES score but also had the lowest percentage of population that is housing burdened. Solano County has the worst CES score in the Bay Area and is in the upper quartile of housing burden population. Alameda and Contra Costa Counties have similar scores across all three metrics.
-
-We also wanted to see if there were differences in age-adjusted asthma ED visit rates between adults and children across counties. Generally, adults appear to have slightly higher age-adjusted asthma ED visit rates but what is more interesting is that the county level effect seems to be stronger than age. Solano County, for example, has higher age-adjusted asthma ED visit rates for adults than for children but the magnitude of both rates are significantly higher than the rest of the Bay Area. Putting all three tables together, there appears to be significant variation in age-adjusted asthma ED visit rates across counties and racial categories. One possible explanation could be that county is a proxy for race. A future analysis should attempt to correlate census tract-level racial composition data to both pollution burden and age-adjusted asthma ED visit rates. 
-```{r table_1_variables_of_interest - Vig, echo = TRUE}
-
-# Variables of Interest by County: Pollution Scores, Housing Burden, CES Scores, and Asthma rates (all ages, all races, by county). 
-# Can filter for Bay Area counties in the final table, as a sample, so that the table isn't too long when we print it
-# San Francisco Bay Area region includes Alameda, Contra Costa, Marin, Napa, San Francisco, San Mateo, Santa Clara, Solano, and Sonoma counties
+```{r final_join_and_pivot - Vig & Jaemie, echo = TRUE}
 
 asthma_race_white <- filter(asthma_2020_race, strata_name == "White") %>%
   pivot_wider(names_from = "strata_name", values_from = "age-adjusted_ed_visit_rate") %>%
@@ -611,11 +589,33 @@ data_final_tojoin <- data_final %>% mutate(County = str_remove_all(County, " COU
   rename(county = County)
 
 data_final_with_race <- inner_join(reduced, data_final_tojoin, by = "county")
+head(data_final_with_race)
+str(data_final_with_race)
+
 race_data_state <- filter(reduced, county == 'CALIFORNIA')
+race_data_state
+
+```
+
+## Visualizations
+
+In this next section, we have prepared visualizations based on our selected variables of interest and the asthma ED visit rates and/or the CES measures. We hope these tables and charts will help us communicate our data analysis findings to others interested in the relationship between asthma, environmental exposures, and socioeconomic measures.
+
+### Tables
+
+#### Table #1: Variables of Interest
+
+Three county-level tables were generated using a combination of California asthma and CES data. The first table looks at age-adjusted asthma ED visit rates for all ages for each county, stratified by race. To simplify the discussion, tables focused on the nine Bay Area counties were generated. Notably, there are several zeroes in this table in the Native Hawaiian/Pacific Islander and American Indian/Alaskan Native columns. A possible explanation for this observation is that there may be little to no data on these populations in certain counties. Comparing across strata, we see that non-White, non-Asian/Pacific Islander racial groups have higher age-adjusted ED visit rates across all nine Bay Area counties. Further analysis could be performed to address this variation. One possible explanation could be geographic segregation where non-White and non-Asian/Pacific Islander groups live in areas that have more environmental hazards and pollution. We assessed pollution burden scores and housing burden % as proxies for environmental hazards at the county level. It may be valuable as a follow-up to assess the relationship between census tract racial composition to pollution burden and housing burden. This could help us investigate more clearly the relationship between race and environmental hazard exposure. If we assume causality between environmental hazard exposure (pollution burden and housing burden) to age-adjusted asthma ED visit rate, we could account for the variation seen across races in age-adjusted asthma ED visit rates.
+
+In this project, our group wanted to analyze environmental factors by county by way of pollution burden scores and housing burden % in the California 2021 CES data. Notably, Marin and Sonoma counties exceed its Bay Area peers in CES Score and pollution burden but have a higher percentage of their populations that is housing burdened. Napa County, by contrast, had the median CES score but also had the lowest percentage of population that is housing burdened. Solano County has the worst CES score in the Bay Area and is in the upper quartile of housing burden population. Alameda and Contra Costa Counties have similar scores across all three metrics.
+
+We also wanted to see if there were differences in age-adjusted asthma ED visit rates between adults and children across counties. Generally, adults appear to have slightly higher age-adjusted asthma ED visit rates but what is more interesting is that the county level effect seems to be stronger than age. Solano County, for example, has higher age-adjusted asthma ED visit rates for adults than for children but the magnitude of both rates are significantly higher than the rest of the Bay Area. Putting all three tables together, there appears to be significant variation in age-adjusted asthma ED visit rates across counties and racial categories. One possible explanation could be that county is a proxy for race. A future analysis should attempt to correlate census tract-level racial composition data to both pollution burden and age-adjusted asthma ED visit rates.
+
+```{r table_1_variables_of_interest - Vig, echo = TRUE}
+
+# San Francisco Bay Area region includes Alameda, Contra Costa, Marin, Napa, San Francisco, San Mateo, Santa Clara, Solano, and Sonoma counties
 
 data_report <- filter(data_final_with_race, county %in% c("ALAMEDA","CONTRA COSTA", "SAN FRANCISCO", "MARIN", "NAPA", "SONOMA", "SOLANO", "SAN MATEO", "SANTA CLARA")) %>% rename(County = county, "Asian/Pacific Islander" = "Asian/PI", "American Indian/Alaskan Native" = "AI/AN", "Native Hawaiian/Pacific Islander" = NHPI)
-
-
 
 race_report <- select(data_report, County, White, Black, Hispanic, "Asian/Pacific Islander", "American Indian/Alaskan Native", "Native Hawaiian/Pacific Islander", "Multi-race") %>% 
   kable(booktabs=T, align='lccccccc', caption="California All-Ages Asthma Age-Adjusted ED Visit Rate by Race and County, 2020",format.args=list(big.mark=","))
@@ -633,76 +633,135 @@ CES_report
 
 ```
 
-Table #2 narrative and interpretation
+#### Table #2: CES Scores Comparison
 
 In this table, we wanted to see how the nine Bay Area counties compare to the state weighted average CES Score. We see that all counties, except for Solano County, have lower CES Scores than the state as a whole. Looking at the raw data, we see significantly higher CES scores outside of the Bay Area. As noted previously, Marin and Sonoma Counties have very good CES scores and are significantly below the state weighted CES average score.
 
 ```{r table_2_ces_prct_diff - Vig, echo = TRUE}
 
-# County CES: percentage difference between state-weighted and county for CES scores. Final table is the nine Bay area counties
 # San Francisco Bay Area region includes Alameda, Contra Costa, Marin, Napa, San Francisco, San Mateo, Santa Clara, Solano, and Sonoma counties
 
 ces_diff <- data.frame(County = data_report$County, ces_4 = data_report$`CES 4.0 Score`)
 ces_diff$prct_vs_state <-(100*ces_diff$ces_4/weighted_CES)
 colnames(ces_diff) <- c("County", "CES 4.0 Score", "% of weighted CA State CES Score")
 
-kable(ces_diff, align='lcc', caption="California All-Ages Asthma ED Visit Rate by County in 2020, % of weighted CA State CES Score",format.args=list(big.mark=","))
+kable_ces_diff <- kable(ces_diff, align='lcc', caption="California All-Ages Asthma ED Visit Rate by County in 2020, % of weighted CA State CES Score",format.args=list(big.mark=","))
+
+kable_ces_diff 
 ```
 
 ### Charts
 
-How each county differs from the weighted average for [variable] -- include statewide average so counties can benchmark against it.
+#### Chart #1: CES Score & Asthma
 
-Chart #1 narrative and interpretation
+Here is a scatterplot that aims to identify the relationship between CES 4.0 Score and Adult Asthma ED Visit Rates. A regression line has been added at the 95% confidence level to help identify any patterns between pollution and asthma visits. There are two counties that have data only from the CES datasets but none from the CHHS asthma dataset, #1 Alpine County, and #2 Sierra County.
 
-```{r chart_1_scatterplot_pollution_vs_asthma - Jaemie, echo = TRUE}
+There appears to be a slight positive relationship between CES score and adult asthma visit rates: counties who are measured to have higher environmental and socioeconomic burdens are associated with increased adult asthma ED visits.
 
-# Scatterplot - Pollution Burden vs. Asthma ED Rates (Jaemie)
+```{r chart_1_scatterplot_ces_vs_asthma - Jaemie, echo = TRUE}
+
+library(ggplot2)
+
+filtered_data_final_with_race <- subset(data_final_with_race, !county %in% c("ALPINE", "SIERRA"))
+
+scatterplot_ces_vs_asthma <- ggplot(filtered_data_final_with_race, 
+       aes(
+         x = as.numeric(`CES 4.0 Score`), 
+         y = as.numeric(`Adult Age-Adjusted ED Visit Rate`))) +
+  geom_point() +
+  ggtitle("2020 California Adult Asthma Emergency Department Visit Rate and 
+          CES 4.0 Score, by County", "Data from California Health and Human Services (CHHS) and CalEnviroScreen (CES)") +
+  xlab("CES 4.0 Score") +
+  ylab("Adult Asthma ED Visit Rates per 10,000 residents") +
+  labs(caption = "Regression line is included with the gray area at the 95% confidence level") +
+  geom_smooth(method="auto", se=TRUE, fullrange=FALSE, level=0.95)
+
+scatterplot_ces_vs_asthma
 ```
 
-Chart #2 narrative and interpretation
+#### Chart #2: Pollution & Asthma
 
-```{r chart_2_scatterplot_housing_vs_asthma - Jaemie, echo = TRUE}
+This scatterplot aims to identify the relationship between Pollution Burden Score and Adult Asthma ED Visit Rates. Again, a regression line is included at the 95% confidence level, and the two counties without asthma ED visit rate data are excluded (Alpine County and Sierra County).
 
-# Scatterplot - Housing Burden vs. Asthma ED Rates (Jaemie)
+There does not seem to be a clear relationship between pollution burden and asthma ED visit rates. Therefore, pollution burden may be interacting with asthma ED visit rates in a non-straightforward way. Other variables should be explored to determine what factors play a larger role in asthma visit rates.
+
+```{r chart_2_scatterplot_pollution_vs_asthma - Jaemie, echo = TRUE}
+
+filtered_data_final_with_race <- subset(data_final_with_race, !county %in% c("ALPINE", "SIERRA"))
+
+scatterplot_pollution_vs_asthma <- ggplot(filtered_data_final_with_race, 
+       aes(
+         x = as.numeric(`Pollution Burden Score`), 
+         y = as.numeric(`Adult Age-Adjusted ED Visit Rate`))) +
+  geom_point() +
+  ggtitle("2020 California Adult Asthma Emergency Department Visit Rate and 
+          CES 4.0 Pollution Burden Score, by County", "Data from California Health and Human Services (CHHS) and CalEnviroScreen (CES)") +
+  xlab("Pollution Burden Score") +
+  ylab("Adult Asthma ED Visit Rates per 10,000 residents") +
+  labs(caption = "Regression line is included with the gray area at the 95% confidence level") +
+  geom_smooth(method="auto", se=TRUE, fullrange=FALSE, level=0.95)
+
+scatterplot_pollution_vs_asthma
 ```
 
-Chart #3 narrative and interpretation
+#### Chart #3: Housing Burden & Asthma
 
-Below is a boxplot created to compare total number of ED visits due to asthma between children (0-17 years old) and adults (>18years old) across all California counties in 2019. The general trend appears to show overall more ED visits in adults (>18 years of age) than that of children (0-17 years of age).
+This next scatterplot aims to identify the relationship between Housing Burden Percent and Adult Asthma ED Visit Rates. Again, a regression line has been added at the 95% confidence level, and counties with no visit rate data (Alpine County and Sierra County) are excluded.
 
-```{r chart_3_box_plot_adults_vs_children_asthma - Kathy, echo = TRUE}
+Yet again, there does not seem to be a clear relationship between housing burden and asthma ED visit rates, suggesting that other variables may be more of a factor.
+
+```{r chart_3_scatterplot_housing_vs_asthma - Jaemie, echo = TRUE}
+
+scatterplot_housing_vs_asthma <- ggplot(filtered_data_final_with_race, 
+       aes(
+         x = as.numeric(`Housing Burden %`), 
+         y = as.numeric(`Adult Age-Adjusted ED Visit Rate`))) +
+  geom_point() +
+  ggtitle("2020 California Adult Asthma Emergency Department Visit Rate and 
+          CES 4.0 Housing Burden %, by County", "Data from California Health and Human Services (CHHS) and CalEnviroScreen (CES)") +
+  xlab("Housing Burden Percent") +
+  ylab("Adult Asthma ED Visit Rates per 10,000 residents") +
+  labs(caption = "Regression line is included with the gray area at the 95% confidence level. Housing Burden Percentage refers to 
+  the percentage of households that are both low income (making less than 80% of their county's median family 
+  income) and severely burdened by rent (paying greater than 50% of their income toward housing costs).") +
+  geom_smooth(method="auto", se=TRUE, fullrange=FALSE, level=0.95)
+
+scatterplot_housing_vs_asthma 
+```
+
+#### Chart #4: Age & Asthma
+
+Below is a boxplot created to compare total number of ED visits due to asthma between children (0-17 years old) and adults (\>18years old) across all California counties in 2019. The general trend appears to show overall more ED visits in adults (\>18 years of age) than that of children (0-17 years of age).
+
+```{r chart_4_box_plot_adults_vs_children_asthma - Kathy, echo = TRUE}
 
 asthma_2020_adult_vs_child <- asthma_2020_age[-c(1,60),]
 asthma_2020_adult_vs_child$age_group[asthma_2020_adult_vs_child$age_group != "18+ years"] <- "0 to 17 years"
-
-library(ggplot2)
 
 boxplot <- ggplot(asthma_2020_adult_vs_child, aes(x=age_group, y=number_of_ed_visits, fill = age_group)) +
   geom_boxplot(outlier.shape = NA) +
   coord_cartesian(ylim=c(0,3000))+
   geom_jitter(position=position_jitter(0.2))+
-  ggtitle("Comparison of Emergency Department Visits 
-          between Children and Adults Across all California Counties") +
-  xlab("Number of ED visits") +
-  ylab("Age Group")
+  ggtitle("Comparison of 2020 Asthma-Related Emergency Department Visits 
+          between Children and Adults Across All California Counties", "Data from California Health and Human Services (CHHS)") +
+  ylab("Number of ED Visits") +
+  xlab("Age Group")
   
 boxplot
-
-  # Box Plot - Asthma ED Rates by County: Adults vs. Children (Kathy)
 ```
 
-Chart #4 narrative and interpretation
+#### Chart #5: Race & Asthma
 
-The bargraph below compares the number of ED visits due to asthma between different race groups across all California counties. Based on the comparison chart, the race that appears to be disproportionately affected by asthma to a point of requiring emergency department visits are Hispanic followed by black.
+The bargraph below compares the number of ED visits due to asthma between different race groups across all California counties. Based on the comparison chart, the race that appears to be disproportionately affected by asthma to a point of requiring emergency department visits are Hispanic followed by Black.
 
 ```{r chart_4_bar_race_vs_asthma - Kathy, echo = TRUE}
 
 bar_race_asthma <- ggplot(asthma_2020_race, aes(x=strata_name, y=number_of_ed_visits) ) +
   geom_bar(stat="identity") +
-  ggtitle("Number of ED visits by Race") +
+  ggtitle("Number of ED Visits by Race", "Data from California Health and Human Services (CHHS)") +
   xlab("Race") +
-  ylab("Number of ED visits")  
+  ylab("Number of ED Visits") +
+  labs(caption = "AI/AN: American Indian/Alaskan Native, Asian/PI: Asian/Pacific Islander, NHPI: Native Hawaiian/Pacific Islander")
 
 bar_race_asthma
 
@@ -710,4 +769,4 @@ bar_race_asthma
 
 ## Conclusion
 
-Narrative -- we hope these visualizations will help us communicate the relationship between asthma and environmental factors, so that the data can be used to inform public health interventions in CA and reduce health disparities among age and race...
+We hope these visualizations will help us communicate our findings of the relationships between asthma and environmental or socioeconomic factors. Our team will review these findings and likely revise our analysis to better capture any potential relationships. After further adjustments and research, we hope that our findings can be used to inform asthma-related public health interventions in California and reduce health disparities among age, race, and socioeconomic factors. To make a meaningful impact on the health of Californians with asthma, interventions should be evidence-based and tailored to help the populations experiencing the highest burdens.
