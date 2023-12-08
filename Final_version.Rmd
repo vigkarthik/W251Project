@@ -1,0 +1,696 @@
+---
+title: "Milestone #4"
+author: "Group 22: Jaemie Anne Abad, Vig Karthik, Kathy LeBert"
+date: "2023-11-20"
+output: html_document
+---
+
+## Introduction
+
+TEXT
+
+## Problem Statement
+
+TEXT
+
+```{r clean_up_columns - Vig, include=FALSE}
+include=FALSE
+
+# update.packages()
+
+library(data.table)
+library(readxl)
+library(tidyverse)
+
+#loading the data.table library to read in the csv
+#also loaded read_xl to read the xlsx file
+
+data_dictionary <- read_xlsx("calenviroscreen_datadictionary.xlsx")
+#using read_xlsx to read in the data dictionary
+
+measures_raw <- fread("calenviroscreen_measures_2021.csv", encoding = "UTF-8")
+#using fread() from the data.table package to read the measures csv.
+#using fread() so special characters read in properly
+
+scores_raw <- fread("calenviroscreen_scores_demog_2021.csv", encoding = "UTF-8")
+#using fread() to read the demographics csv
+
+asthma_raw <- fread("chhs_asthma_ed.csv")
+#using fread() to read the asthma csv.
+
+#now that we've read the files, I've went into the csv files and removed 
+#periods by some abbreviations to avoid '._' string chunks in columns
+#this is mostly for aesthetic and typing ease during the project
+
+#the below functions take the raw csvs and convert all columns to lowercase
+#they also remove spaces in the column names to convert columns to snakecase
+
+measures <- rename_with(
+  measures_raw,             # data frame
+  ~ tolower(           # function call (using tolower())
+    gsub(" ",          # embedded gsub() checking for empty spaces pattern " "
+         "_",          # replace pattern with underscore "_"         
+         .x,           
+         fixed = TRUE) 
+    ))
+
+scores <- rename_with(
+  scores_raw,             # data frame
+  ~ tolower(           # function call (using tolower())
+    gsub(" ",          # embedded gsub() checking for empty spaces pattern " "
+         "_",          # replace pattern with underscore "_"         
+         .x,           
+         fixed = TRUE) 
+    ))
+
+
+asthma <- rename_with(
+  asthma_raw,             # data frame
+  ~ tolower(           # function call (using tolower())
+    gsub(" ",          # embedded gsub() checking for empty spaces pattern " "
+         "_",         # replace pattern with underscore "_"          
+         .x,           
+         fixed = TRUE) 
+    ))
+
+#str(measures)
+#str(scores)
+#str(asthma)
+
+#I checked the dataframe structure to see if we needed to change column types.
+#The column types seem to be accurately assigned. Based on the column
+#descriptors, there seems to be no mismatch of data types. Characters are
+#characters, integers are integers, and decimals are numbers.
+
+```
+
+```{r data_element_analysis - Jaemie, include=FALSE}
+include=FALSE
+# # to run the data element analysis, please undo the comments in this chunk
+#
+# # 1 - CES County
+# # lists which of CA's 58 counties is specified
+# class(measures$california_county)
+# 
+# # 2 - CES Asthma
+# class(measures$asthma)
+# summary(measures$asthma)
+# class(measures$asthma_pctl)
+# summary(measures$asthma_pctl)
+# 
+# # 3 - CES Score
+# class(scores$ces_4.0_score)
+# summary(scores$ces_4.0_score)
+# class(scores$ces_4.0_percentile)
+# summary(scores$ces_4.0_percentile)
+# 
+# # 4 - CES Age
+# class(scores$children_below_10_years_prct)
+# summary(scores$children_below_10_years_prct)
+# class(scores$pop_10_to_64_years_prct)
+# summary(scores$pop_10_to_64_years_prct)
+# class(scores$elderly_above_64_years_prct)
+# summary(scores$elderly_above_64_years_prct)
+# 
+# # 5 - CES Race
+# class(scores$white_prct)
+# summary(scores$white_prct)
+# class(scores$hispanic_prct)
+# summary(scores$hispanic_prct)
+# class(scores$african_american_prct)
+# summary(scores$african_american_prct)
+# class(scores$native_american_prct)
+# summary(scores$native_american_prct)
+# class(scores$asian_american_prct)
+# summary(scores$asian_american_prct)
+# class(scores$`other/multiple_prct`)
+# summary(scores$`other/multiple_prct`)
+# 
+# # 6 - CHHS Asthma
+# class(asthma$year)
+# summary(asthma$year)
+# class(asthma$`age-adjusted_ed_visit_rate`)
+# summary(asthma$`age-adjusted_ed_visit_rate`)
+# # also include county
+
+```
+
+## Methods
+
+TEXT
+
+```{r subset, include=FALSE}
+include=FALSE
+# subset asthma data set by year 2020
+asthma_2020 <- subset(asthma, year == 2020)
+
+```
+
+```{r more_cleaning_and_missing_values, include=FALSE}
+
+include=FALSE
+# convert census tract in two datasets from integer to character
+class(measures$census_tract)
+measures$census_tract <- as.character(measures$census_tract)
+class(measures$census_tract)
+class(scores$census_tract)
+scores$census_tract <- as.character(scores$census_tract)
+class(scores$census_tract)
+
+# identify missing values in the three datasets
+asthma_missing <- colSums(is.na(asthma))
+print(asthma_missing)
+measures_missing <- colSums(is.na(measures))
+print(measures_missing)
+scores_missing <- colSums(is.na(scores))
+print(scores_missing)
+
+# what is the proportion of missing values in each dataset?
+# https://thomasadventure.blog/posts/r-count-na/
+mean(is.na(asthma))
+mean(is.na(measures))
+mean(is.na(scores))
+
+# rename any more columns as needed
+scores <- scores %>%
+  rename(other_multiple_prct = `other/multiple_prct`)
+
+```
+
+```{r population_numbers, include=FALSE}
+include=FALSE
+# change race and age percentages to population numbers, round to whole numbers
+scores$children_below_10_years_num <- round(scores$total_population * scores$children_below_10_years_prct)
+scores$pop_10_to_64_years_num <- round(scores$total_population * scores$pop_10_to_64_years_prct)
+scores$elderly_above_64_years_num <- round(scores$total_population * scores$elderly_above_64_years_prct)
+scores$hispanic_num <- round(scores$total_population * scores$hispanic_prct)
+scores$white_num <- round(scores$total_population * scores$white_prct)
+scores$african_american_num <- round(scores$total_population * scores$african_american_prct)
+scores$native_american_num <- round(scores$total_population * scores$native_american_prct)
+scores$asian_american_num <- round(scores$total_population * scores$asian_american_prct)
+scores$other_multiple_num <- round(scores$total_population * scores$other_multiple_prct)
+
+# round to 2 decimal points for CES scores and percentiles
+scores$ces_4.0_score_round <- round(scores$ces_4.0_score, digits = 2)
+scores$ces_4.0_percentile_round <- round(scores$ces_4.0_percentile, digits = 2)
+
+# pivoting is not needed for these datasets at this time
+
+
+```
+
+```{r new_variables, include=FALSE}
+#combining CES scores into a county level measure
+include=FALSE
+
+scores_raw_county <- scores_raw %>%
+  replace(is.na(.),0) %>%
+  select(-c(`CES 4.0 Percentile Range`,`CES 4.0 Percentile`, `Census Tract`)) %>%
+  group_by(County) %>% 
+  summarize_all(mean) %>%
+#lumping together non-white percentages in population
+  mutate(non_white_prct =`Hispanic prct`+`African American prct`+`Native American prct`+`Asian American prct`+`Other/Multiple prct`) %>%
+#calculating non-white population
+  mutate(non_white_pop = `non_white_prct`/100 * `Total Population`) %>%
+#calculating white population
+  mutate(white_pop = `White prct`/100 * `Total Population`) %>%
+  rename(white_prct =`White prct`) %>%
+#removing individual race categories for non-white individuals
+  select(-c(`Hispanic prct`,`African American prct`,`Native American prct`,`Asian American prct`,`Other/Multiple prct`)) %>%
+#calculating population of children below 10 years
+  mutate(pop_under_10 = `Children below 10 years prct`/100*`Total Population`) %>%
+  rename(pop_under_10_prct = `Children below 10 years prct`) %>%
+#calculating population of individuals above 10 years
+  mutate(pop_over_10_prct = `Pop 10 to 64 years prct` + `Elderly above 64 years prct`) %>%
+  mutate(pop_over_10 = `pop_over_10_prct`/100 * `Total Population`) %>%
+#removing sub-categories of individuals over 10 years
+  select(-c(`Pop 10 to 64 years prct`,`Elderly above 64 years prct`))
+
+```
+
+
+
+```{r quartiles_and_score_ordering, include=FALSE}
+include=FALSE
+ 
+#calculating quartiles for county CES scores
+CES_score_quartile <- quantile(scores_raw$`CES 4.0 Score`, na.rm=TRUE)
+
+scores_raw_county <- scores_raw_county %>%
+  mutate(CES_score_quartile_range = cut(`CES 4.0 Score`, breaks = c(-Inf, 14.786523, 25.553718, 40.057395, Inf),
+                                        labels = c("Lowest Quartile","Second Quartile","Third Quartile", "Fourth Quartile"))) %>%
+
+#subsetting and ordering the scores dataset
+   select(c(`County`, `CES 4.0 Score`, `CES_score_quartile_range`, `Total Population`, `white_prct`, `white_pop`, `non_white_prct`, `non_white_pop`, `pop_under_10_prct`, 
+           `pop_under_10`,`pop_over_10_prct`, `pop_over_10`))
+
+scores_raw_county <- scores_raw_county[order(scores_raw_county$County),]
+scores_raw_county$County <- toupper(scores_raw_county$County)
+
+```
+
+```{r recode_invalid_measures_and_sum_county_means, include=FALSE}
+
+include=FALSE
+#recoding invalid values in the measures file
+#then summarizing means of county measures (Pollution/Housing Burden)
+measures_raw_county <- measures_raw %>%
+  replace(is.na(.),0) %>%
+  group_by(`California County`) %>%
+  summarize_all(mean) %>%
+  select(c(`California County`,`Pollution Burden`,`Pollution Burden Score`, `Pollution Burden Pctl`, `Housing Burden`, `Housing Burden Pctl`))
+  
+measures_raw_county <- measures_raw_county[order(measures_raw_county$`California County`),]
+colnames(measures_raw_county)[colnames(measures_raw_county)== "California County"] = "County" 
+measures_raw_county$County <- toupper(measures_raw_county$County)
+measures_raw_county <- measures_raw_county %>% mutate(County=paste(County,c("COUNTY"), sep=" "))
+
+```
+
+```{r recode_invalid_asthma_and_age_stratify, include=FALSE}
+include=FALSE
+#recoding invalid values for asthma dataset
+#grouping values by county
+asthma_2020 <- asthma %>%
+  replace(is.na(.),0) %>%
+  group_by(county) %>%
+  filter(year>=2020)
+  #select(-c(`age-adjusted_ed_visit_rate`, `year`))
+
+#filtering asthma dataset to stratify by age
+#create two datasets - one for child, one for adult
+asthma_2020_age <- asthma_2020 %>% filter(strata =="Child vs. adult")
+
+asthma_2020_age_adult <- filter(asthma_2020_age, strata_name == "18+ years")
+asthma_2020_age_adult <- asthma_2020_age_adult[-(1),]
+asthma_2020_age_adult <- asthma_2020_age_adult[order(asthma_2020_age_adult$county),]
+colnames(asthma_2020_age_adult)[colnames(asthma_2020_age_adult)== "county"] = "County" 
+asthma_2020_age_adult <- asthma_2020_age_adult %>% mutate(County=paste(County,c("COUNTY"), sep=" ")) %>%
+  select(c("County","number_of_ed_visits", "age-adjusted_ed_visit_rate")) %>%
+  rename(adult_asthma_ed_visits = "number_of_ed_visits")
+
+asthma_2020_age_child <- asthma_2020_age[-(60:118),]
+asthma_2020_age_child <- asthma_2020_age_child[-(1),]
+asthma_2020_age_child <- asthma_2020_age_child[order(asthma_2020_age_child$county),]
+colnames(asthma_2020_age_child)[colnames(asthma_2020_age_child)== "county"] = "County" 
+asthma_2020_age_child <- asthma_2020_age_child %>% mutate(County=paste(County,c("COUNTY"), sep=" "))%>%
+  select(c("County","number_of_ed_visits", "age-adjusted_ed_visit_rate")) %>%
+  rename(child_asthma_ed_visits = "number_of_ed_visits")
+
+
+
+#filtering asthma dataset to stratify by race
+#create two datasets - one for white, one for non-white
+#summarizing number of ED visits for white and non-white individuals by county
+
+asthma_2020_race <- asthma_2020 %>%
+  filter(strata == "Race/ethnicity")
+
+asthma_2020_white <- asthma_2020_race %>%
+  filter(strata_name == "White")
+asthma_2020_white <- asthma_2020_white[-(1),]
+asthma_2020_white <- asthma_2020_white[order(asthma_2020_white$county),]
+colnames(asthma_2020_white)[colnames(asthma_2020_white)== "county"] = "County" 
+asthma_2020_white <- asthma_2020_white %>% mutate(County=paste(County,c("COUNTY"), sep=" "))%>%
+  select(c("County","number_of_ed_visits")) %>%
+  rename(white_asthma_ed_visits = "number_of_ed_visits")
+
+
+asthma_2020_non_white <- asthma_2020_race %>%
+  filter(strata_name != "White")
+asthma_2020_non_white <- asthma_2020_non_white[-(1),]
+asthma_2020_non_white <- asthma_2020_non_white[order(asthma_2020_non_white$county),]
+asthma_2020_non_white <- asthma_2020_non_white %>%
+  group_by(county) %>%
+  summarise(num = n(),
+            non_white = sum(number_of_ed_visits))
+asthma_2020_non_white <- asthma_2020_non_white[-(6),]
+colnames(asthma_2020_non_white)[colnames(asthma_2020_non_white)== "county"] = "County" 
+asthma_2020_non_white <- asthma_2020_non_white %>% mutate(County=paste(County,c("COUNTY"), sep=" "))%>%
+  select(c("County","non_white")) %>%
+  rename(non_white_asthma_ed_visits = "non_white")
+
+
+```
+
+```{r join_scores_with_measures_and_asthma Kathy 5, include=FALSE}
+include=FALSE
+#joining the scores with measures and stratified asthma datasets
+
+CES_environment_Asthma <- scores_raw_county %>%
+   left_join(measures_raw_county, by='County') %>%
+   left_join(asthma_2020_age_adult, by="County") %>% 
+   left_join(asthma_2020_age_child, by="County") %>%
+   left_join(asthma_2020_white, by="County") %>%
+   left_join(asthma_2020_non_white, by="County")
+```
+
+
+```{r data_dictionary_original - Kathy, include=FALSE}
+include=FALSE
+
+library(kableExtra)
+
+new_data_dictionary <- data.frame(
+variables <- c('2020 Asthma ED visits, 2019 Census, and environmental burden summary','County', 'CES 4.0 Score', 'CES_score_quartile_range', 'Total Population', 'white_prct', 'white_pop',
+               'non_white_prcp', 'non_white_pop', 'pop_under_10_prct', 'pop_under_10', 'pop_over_10_prct','pop_over_10',
+               'Pollution Burden', 'Pollution Burden Score','Pollution Burden Pctl', 'Housing Burden', 'Housing Burden Pctl',
+               'adult_asthma_ed_visits','child-asthma_ed_visits','white_asthma_ed_visits','non_white_asthma_ed_visits','AI/AN','NHPI'), 
+descriptions <- c('Data dictionary','California counties', 'CalEnviroScreen Score','CES 4.0 score grouped by quartile range of scores', '2019 ACS population estimates in census tracts', 'percetange of population that identify as white', 'estimated raw number of population that identify as white, calculated by multiplying percentage to total population', 'percentage of population that identify as non-white or multiple race, calculated by summming percentages of all non-white races and others/multile race from raw demographic results in census tract', 'estimated raw number of population that identify as non-white or multiple race, calculated by multiplying percentage to total population', 'percentage of population that is less than 10 years old','estimated raw number of population that is less than 10 years old, calculated by multiplying percentage to total populaiton', 'percentage of population that is more than 10 years old, calculated by summing population 10 to 64 years and over 64 years', 'estimated raw number of population that is more than 10 years old, calculated by multiplying percentage to total population','Average of percentiles from the Pollution Burden indicators (with a half weighting for the Environmental Effects indicators)','Pollution Burden variable scaled with a range of 0-10. (Used to calculate CES 4.0 Score)','Pollution burden percentile','Percent housing burdened low income households', 'Housing burden percentile','number of ED visits due to asthma for those over 18 years of age', 'number of ED visits due to asthma for those under 18 years of age', 'number of ED visits due to asthma for those that identify as white', 'number of ED visits due to asthma for those that identify as non-white or multiple race','American Indian/Alaskan Native','Native Hawaiian/Pacific Islander'))
+
+colnames(new_data_dictionary)[1] = "VARIABLE"
+colnames(new_data_dictionary)[2] = "DESCRIPTION"
+
+new_data_dictionary <- new_data_dictionary %>% 
+  kbl () %>%
+  kable_paper(full_width = F) %>%
+  column_spec(1, bold = T, border_right = T) %>%
+  column_spec(2, width = "30em")
+
+new_data_dictionary
+
+
+```
+
+
+```{r ces_scores_measures_analysis, include=FALSE}
+include=FALSE
+
+#3A: County and: CES score, Pollution Burden, Housing Burden %
+
+#subsetting the combined dataset to analyze statistics for specific environmental measures by county 
+
+asthma_house_poll <- data.frame("County" = CES_environment_Asthma$County, 
+                                "CES 4.0 Score" = 
+                                  CES_environment_Asthma$`CES 4.0 Score`, 
+                                "Pollution Burden Score" = 
+                                CES_environment_Asthma$`Pollution Burden Score`, 
+                                "Housing Burden %" = 
+                                  CES_environment_Asthma$`Housing Burden`, 
+                                "Population" = 
+                                  CES_environment_Asthma$`Total Population`)
+
+colnames(asthma_house_poll) = c("County", "CES 4.0 Score", 
+                                "Pollution Burden Score", 
+                                "Housing Burden %", "Population")
+
+
+#calculating the weighted averages for CES/pollution/housing
+
+asthma_house_poll$weights <- 
+  asthma_house_poll$`Population`/sum(asthma_house_poll$`Population`)
+
+weighted_CES <-
+  sum(asthma_house_poll$weights*asthma_house_poll$`CES 4.0 Score`)
+
+weighted_pollution_burden <-
+  sum(asthma_house_poll$weights*asthma_house_poll$`Pollution Burden Score`)
+
+weighted_housing_burden <-
+  sum(asthma_house_poll$weights*asthma_house_poll$`Housing Burden %`)
+
+weighted_environment <- data.frame(weighted_CES, weighted_pollution_burden, weighted_housing_burden)
+
+colnames(weighted_environment) = c("Weighted CES 4.0 Score", 
+                                   "Weighted Pollution Burden", 
+                                   "Weighted Housing Burden %")
+
+```
+
+```{r age_and_asthma_rates, include=FALSE}
+include=FALSE
+
+#joining the child and adult asthma ED admission datasets
+
+asthma_2020_age_report <- asthma_2020_age_adult %>%
+   left_join(asthma_2020_age_child, by='County')
+
+#calculating the weighted state ED admission rate for adult and child
+adult_total_ed_visits <- sum(asthma_2020_age_report$adult_asthma_ed_visits)
+child_total_ed_visits <- sum(asthma_2020_age_report$child_asthma_ed_visits)
+
+#defining a column that represents the proportion of adult/child ED admissions contributed by county 
+
+asthma_2020_age_report$adult_visit_state_prop <- 
+  asthma_2020_age_report$adult_asthma_ed_visits/adult_total_ed_visits 
+
+asthma_2020_age_report$child_visit_state_prop <- 
+  asthma_2020_age_report$child_asthma_ed_visits/child_total_ed_visits 
+
+#using above proportion to calculate weighted state ED admission rates for adult and child
+adult_weighted_state_ed_rate <- 
+  sum(asthma_2020_age_report$adult_visit_state_prop*
+        asthma_2020_age_report$`age-adjusted_ed_visit_rate.x`)
+
+child_weighted_state_ed_rate <- 
+  sum(asthma_2020_age_report$child_visit_state_prop*
+        asthma_2020_age_report$`age-adjusted_ed_visit_rate.y`)
+
+#cleaning up the calculation worksheet, asthma_2020_age_report
+asthma_2020_age_final <- select(asthma_2020_age_report, 
+                                "age-adjusted_ed_visit_rate.x", 
+                                "age-adjusted_ed_visit_rate.y")
+colnames(asthma_2020_age_final) = c("County",
+                                    "Adult Age-Adjusted ED Visit Rate", 
+                                    "Child Age-Adjusted ED Visit Rate")
+
+
+```
+
+```{r statistics_and_tables, include=FALSE}
+include=FALSE
+#joining the cleaned up CES data with the cleaned up age-asthma data in preparation for summary statistics and tables
+
+data_final <- asthma_2020_age_final %>%
+   left_join(asthma_house_poll, by='County')
+data_final <- data_final[,-c(7,8)]
+
+#summary statistics for the CES/age-asthma data
+print(summary(data_final))
+
+adult_quartile <- quantile(data_final$`Adult Age-Adjusted ED Visit Rate`, probs = c(0.25,0.5,0.75,1))
+child_quartile <- quantile(data_final$`Child Age-Adjusted ED Visit Rate`, probs = c(0.25,0.5,0.75,1))
+ces_quartile <- quantile(data_final$`CES 4.0 Score`, probs = c(0.25,0.5,0.75,1))
+pollution_quartile <- quantile(data_final$`Pollution Burden Score`, probs = c(0.25,0.5,0.75,1))
+housing_quartile <- quantile(data_final$`Housing Burden %`, probs = c(0.25,0.5,0.75,1))
+
+quartiles <- data.frame(adult_quartile,child_quartile,ces_quartile,pollution_quartile,housing_quartile)
+colnames(quartiles) = c("Quartiles of CA County Adult ED Admission Rate", "Quartiles of CA County Child ED Admission Rate", "Quartiles of CA County CES 4.0 Scores", "Quartiles of CA County Pollution Burden Scores", "Quartiles of CA County Housing Burden %")
+
+#weighted average table
+weighted_final <- data.frame(adult_weighted_state_ed_rate, 
+                             child_weighted_state_ed_rate, 
+                             weighted_CES, weighted_pollution_burden, 
+                             weighted_housing_burden)
+
+colnames(weighted_final) <-
+  c("Adult Weighted State ED Admission Rate",
+    "Child Weighted State ED Admission Rate",
+    "Weighted State CES",
+    "Weighted State Pollution Burden",
+    "Weighted State Housing Burden %")
+
+rownames(weighted_final) <- c("Weighted Value")
+
+print(t(quartiles))
+print(t(weighted_final))
+
+
+```
+
+
+```{r race_asthma_analysis, include=FALSE}
+include=FALSE
+
+#need some work on race for final submission
+
+# #3C: obtain the race populations from CES_Environment_asthma, and divide the ED visits in asthma_2020 white and non-white by this population. note that we assume that the racial populations in each county don't change much year-over-year. This is a third table. column 1 is county, column 2 is racial group, column 3 is rate
+# 
+# #report out summary ed visits for: white, non-white
+# 
+# asthma_race_report <- select(CES_environment_Asthma, "County", "white_pop", "white_asthma_ed_visits", "non_white_pop", "non_white_asthma_ed_visits")
+# 
+# white_total_ed_visits <- sum(asthma_race_report$white_asthma_ed_visits)
+# non_white_total_ed_visits <- sum(asthma_race_report$non_white_asthma_ed_visits)
+# 
+# 
+# asthma_race_report$white_visit_state_prop <- asthma_race_report$white_asthma_ed_visits/white_total_ed_visits 
+# 
+# asthma_race_report$non_white_visit_state_prop <- asthma_race_report$non_white_asthma_ed_visits/non_white_total_ed_visits 
+# 
+# 
+# asthma_race_report$white_asthma_ed_rate <- asthma_race_report$white_asthma_ed_visits/asthma_race_report$white_pop 
+# asthma_race_report$non_white_asthma_ed_rate <- asthma_race_report$non_white_asthma_ed_visits/asthma_race_report$non_white_pop
+# 
+# white_weighted_state_ed_rate <- sum(asthma_race_report$white_visit_state_prop*asthma_race_report$white_asthma_ed_rate)
+# 
+# non_white_weighted_state_ed_rate <- sum(asthma_race_report$non_white_visit_state_prop*asthma_race_report$non_white_asthma_ed_rate)
+# 
+# asthma_race_final <- select(asthma_race_report, County, white_asthma_ed_rate, non_white_asthma_ed_rate)
+
+```
+
+
+### Data Dictionary 
+
+```{r data_dictionary_updated - Kathy, echo=FALSE}
+
+
+library(kableExtra)
+
+new_data_dictionary <- data.frame(
+variables <- c('2020 Asthma ED visits, 2019 Census, and environmental burden summary','County', 'CES 4.0 Score', 'CES_score_quartile_range', 'Total Population', 'white_prct', 'white_pop',
+               'non_white_prcp', 'non_white_pop', 'pop_under_10_prct', 'pop_under_10', 'pop_over_10_prct','pop_over_10',
+               'Pollution Burden', 'Pollution Burden Score','Pollution Burden Pctl', 'Housing Burden', 'Housing Burden Pctl',
+               'adult_asthma_ed_visits','child-asthma_ed_visits','age-adjusted_ed_visit_rate','white_asthma_ed_visits','non_white_asthma_ed_visits','White', 'Black', 'Hispanic', 'Asian/PI', 'AI/AN','NHPI', 'Multi-race'), 
+descriptions <- c('Data dictionary','California counties', 'CalEnviroScreen Score','CES 4.0 score grouped by quartile range of scores', '2019 ACS population estimates in census tracts', 'percetange of population that identify as white', 'estimated raw number of population that identify as white, calculated by multiplying percentage to total population', 'percentage of population that identify as non-white or multiple race, calculated by summming percentages of all non-white races and others/multile race from raw demographic results in census tract', 'estimated raw number of population that identify as non-white or multiple race, calculated by multiplying percentage to total population', 'percentage of population that is less than 10 years old','estimated raw number of population that is less than 10 years old, calculated by multiplying percentage to total populaiton', 'percentage of population that is more than 10 years old, calculated by summing population 10 to 64 years and over 64 years', 'estimated raw number of population that is more than 10 years old, calculated by multiplying percentage to total population','Average of percentiles from the Pollution Burden indicators (with a half weighting for the Environmental Effects indicators)','Pollution Burden variable scaled with a range of 0-10. (Used to calculate CES 4.0 Score)','Pollution burden percentile','Percent housing burdened low income households', 'Housing burden percentile','number of Emergency Department (ED) visits due to asthma for those over 18 years of age', 'age adjusted ED visit rates due to asthma, rate per 10,000 residents', 'number of ED visits due to asthma for those under 18 years of age', 'number of ED visits due to asthma for those that identify as white', 'number of ED visits due to asthma for those that identify as non-white or multiple race','White (non-Hispanic) race','Black race','Hispanic race','Asian/Pacific Islander race','American Indian/Alaskan Native race','Native Hawaiian/Pacific Islander race', 'Multiple races'))
+
+colnames(new_data_dictionary)[1] = "VARIABLE"
+colnames(new_data_dictionary)[2] = "DESCRIPTION"
+
+new_data_dictionary <- new_data_dictionary %>% 
+  kbl () %>%
+  kable_paper(full_width = F) %>%
+  column_spec(1, bold = T, border_right = T) %>%
+  column_spec(2, width = "30em")
+
+new_data_dictionary
+```
+
+### Tables & Charts
+
+
+```{r final_join_and_pivot - Vig & Jaemie, include=FALSE}
+
+
+asthma_race_white <- filter(asthma_2020_race, strata_name == "White") %>%
+  pivot_wider(names_from = "strata_name", values_from = "age-adjusted_ed_visit_rate") %>%
+  select(county, White)
+
+asthma_race_black <- filter(asthma_2020_race, strata_name == "Black")%>%
+  pivot_wider(names_from = "strata_name", values_from = "age-adjusted_ed_visit_rate") %>%
+  select(county, Black)
+asthma_race_hispanic <- filter(asthma_2020_race, strata_name == "Hispanic") %>%
+  pivot_wider(names_from = "strata_name", values_from = "age-adjusted_ed_visit_rate") %>%
+  select(county, Hispanic)
+asthma_race_AAPI <- filter(asthma_2020_race, strata_name == "Asian/PI") %>%
+  pivot_wider(names_from = "strata_name", values_from = "age-adjusted_ed_visit_rate") %>%
+  select(county, "Asian/PI")
+asthma_race_AI <- filter(asthma_2020_race, strata_name == "AI/AN") %>%
+  pivot_wider(names_from = "strata_name", values_from = "age-adjusted_ed_visit_rate") %>%
+  select(county, "AI/AN")
+asthma_race_NHPI <- filter(asthma_2020_race, strata_name == "NHPI") %>%
+  pivot_wider(names_from = "strata_name", values_from = "age-adjusted_ed_visit_rate") %>%
+  select(county, NHPI)
+asthma_race_MR <- filter(asthma_2020_race, strata_name == "Multi-race") %>%
+  pivot_wider(names_from = "strata_name", values_from = "age-adjusted_ed_visit_rate") %>%
+  select(county, "Multi-race")
+
+reduced <- Reduce(function(...) merge(..., by='county', all.x=TRUE), 
+                  list(asthma_race_white,asthma_race_black,asthma_race_hispanic,
+                       asthma_race_AAPI,asthma_race_AI,
+                       asthma_race_NHPI, asthma_race_MR))
+
+data_final_tojoin <- data_final %>% mutate(County = str_remove_all(County, " COUNTY")) %>% 
+  rename(county = County)
+
+data_final_with_race <- inner_join(reduced, data_final_tojoin, by = "county")
+head(data_final_with_race)
+str(data_final_with_race)
+
+race_data_state <- filter(reduced, county == 'CALIFORNIA')
+race_data_state
+
+```
+#### Table 1A-C
+
+```{r table_1_variables_of_interest - Vig, echo=FALSE}
+
+# San Francisco Bay Area region includes Alameda, Contra Costa, Marin, Napa, San Francisco, San Mateo, Santa Clara, Solano, and Sonoma counties
+
+data_report <- filter(data_final_with_race, county %in% c("ALAMEDA","CONTRA COSTA", "SAN FRANCISCO", "MARIN", "NAPA", "SONOMA", "SOLANO", "SAN MATEO", "SANTA CLARA")) %>% rename(County = county, "Asian/Pacific Islander" = "Asian/PI", "American Indian/Alaskan Native" = "AI/AN", "Native Hawaiian/Pacific Islander" = NHPI)
+
+race_report <- select(data_report, County, White, Black, Hispanic, "Asian/Pacific Islander", "American Indian/Alaskan Native", "Native Hawaiian/Pacific Islander", "Multi-race") %>% 
+  kable(booktabs=T, align='lccccccc', caption="California All-Ages Asthma Age-Adjusted ED Visit Rate by Race and County, 2020",format.args=list(big.mark=",")) %>%
+  column_spec(1, width="10em") %>%
+  kable_styling()
+
+age_report <- select(data_report, County, "Adult Age-Adjusted ED Visit Rate", "Child Age-Adjusted ED Visit Rate") %>% 
+  kable(booktabs=T, align='lcc', caption="California Adult (18+) vs. Child (0-17) Age-Adjusted ED Visit Rate by County, 2020",format.args=list(big.mark=","))%>%
+   kable_styling()
+
+CES_report <- select(data_report, County, "CES 4.0 Score", "Pollution Burden Score", "Housing Burden %") %>% 
+  kable(booktabs=T, align='lccc', caption="California CES 4.0 Scores, Pollution Burden Scores, Housing Burden % of Population by County, 2021",format.args=list(big.mark=","))%>%
+   kable_styling()
+
+
+race_report
+age_report
+CES_report
+
+```
+
+
+```{r table_2_ces_prct_diff - Vig, include=FALSE}
+
+# San Francisco Bay Area region includes Alameda, Contra Costa, Marin, Napa, San Francisco, San Mateo, Santa Clara, Solano, and Sonoma counties
+
+ces_diff <- data.frame(County = data_report$County, ces_4 = data_report$`CES 4.0 Score`)
+ces_diff$prct_vs_state <-(100*ces_diff$ces_4/weighted_CES)
+colnames(ces_diff) <- c("County", "CES 4.0 Score", "% of weighted CA State CES Score")
+
+kable_ces_diff <- kable(ces_diff, align='lcc', caption="California All-Ages Asthma ED Visit Rate by County in 2020, % of weighted CA State CES Score",format.args=list(big.mark=","))
+
+kable_ces_diff 
+```
+
+#### Chart #1: CES Scores and Asthma ED Visit Rates
+
+```{r chart_1_scatterplot_ces_vs_asthma - Jaemie, echo=FALSE}
+
+library(ggplot2)
+
+filtered_data_final_with_race <- subset(data_final_with_race, !county %in% c("ALPINE", "SIERRA"))
+
+scatterplot_ces_vs_asthma <- ggplot(filtered_data_final_with_race, 
+       aes(
+         x = as.numeric(`CES 4.0 Score`), 
+         y = as.numeric(`Adult Age-Adjusted ED Visit Rate`))) +
+  geom_point() +
+  ggtitle("2020 California Adult Asthma Emergency Department Visit Rate and 
+          CES 4.0 Score, by County", "Data from California Health and Human Services (CHHS) and CalEnviroScreen (CES)") +
+  xlab("CES 4.0 Score") +
+  ylab("Adult Asthma ED Visit Rates per 10,000 residents") +
+  labs(caption = "Regression line is included with the gray area at the 95% confidence level") +
+  geom_smooth(method="auto", se=TRUE, fullrange=FALSE, level=0.95)
+
+scatterplot_ces_vs_asthma
+```
+
+
+#### Chart #2: Race & Asthma ED Visit Numbers
+
+```{r chart_4_bar_race_vs_asthma - Kathy, echo=FALSE}
+
+bar_race_asthma <- ggplot(asthma_2020_race, aes(x=strata_name, y=number_of_ed_visits) ) +
+  geom_bar(stat="identity") +
+  ggtitle("Number of ED Visits by Race", "Data from California Health and Human Services (CHHS)") +
+  xlab("Race") +
+  ylab("Number of ED Visits") +
+  labs(caption = "AI/AN: American Indian/Alaskan Native, Asian/PI: Asian/Pacific Islander, NHPI: Native Hawaiian/Pacific Islander")
+
+bar_race_asthma
+
+```
+
+## Results
+
+TEXT
+
+## Discussion
+
+TEXT
+
+## Conclusion
+
+TEXT
