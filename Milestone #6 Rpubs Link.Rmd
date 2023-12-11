@@ -1,0 +1,8 @@
+---
+title: 'Milestone #6 Rpubs Link'
+author: "Jaemie, Vig, Kathy"
+date: "2023-12-10"
+output: html_document
+---
+
+http://rpubs.com/jaemiea/final_ces_vs_asthma
